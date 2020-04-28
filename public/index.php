@@ -5,13 +5,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-require __DIR__ . '/../includes/DbConnect.php';
+require __DIR__ . '/../includes/DbOperations.php';
 
 $app = new \Slim\App([
     'settings'=>[
         'displayErrorDetails'=>true
     ]
 ]);
+
 
 //Authenticates and logs the user in
 $app->post('/userlogin', function(Request $request, Response $response){
