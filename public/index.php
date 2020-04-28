@@ -14,66 +14,66 @@ $app = new \Slim\App([
 ]);
 
 
-//Authenticates and logs the user in
-$app->post('/userlogin', function(Request $request, Response $response){
+$app->post('/createuser', function(Request $request, Response $response){
 
-    if(!haveEmptyParameters(array('email', 'password'), $request, $response)){
+    if(!haveEmptyParameters(array('email', 'password', 'firstName', 'lastName', 'phone'), $request, $response)){
+
         $request_data = $request->getParsedBody(); 
 
         $email = $request_data['email'];
         $password = $request_data['password'];
-        
+        $firstName = $request_data['firstName'];
+        $lastName = $request_data['lastName']; 
+        $phone = $request_data['phone'];
+
+        $hash_password = password_hash($password, PASSWORD_DEFAULT);
+
         $db = new DbOperations; 
 
-        $result = $db->userLogin($email, $password);
+        $result = $db->createUser($email, $hash_password, $firstName, $lastName, $phone);
+        
+        if($result == USER_CREATED){
 
-        if($result == USER_AUTHENTICATED){
-            
-            $user = $db->getUserByEmail($email);
-            $response_data = array();
+            $message = array(); 
+            $message['error'] = false; 
+            $message['message'] = 'User created successfully';
 
-            $response_data['error']=false; 
-            $response_data['message'] = 'Login Successful';
-            $response_data['user']=$user; 
-
-            $response->write(json_encode($response_data));
+            $response->write(json_encode($message));
 
             return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);    
+                        ->withHeader('Content-type', 'application/json')
+                        ->withStatus(201);
 
-        }else if($result == USER_NOT_FOUND){
-            $response_data = array();
+        }else if($result == USER_FAILURE){
 
-            $response_data['error']=true; 
-            $response_data['message'] = 'User does not exist';
+            $message = array(); 
+            $message['error'] = true; 
+            $message['message'] = 'An error occurred';
 
-            $response->write(json_encode($response_data));
-
-            return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);    
-
-        }else if($result == USER_PASSWORD_DO_NOT_MATCH){
-            $response_data = array();
-
-            $response_data['error']=true; 
-            $response_data['message'] = 'Invalid login credentials';
-
-            $response->write(json_encode($response_data));
+            $response->write(json_encode($message));
 
             return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);  
+                        ->withHeader('Content-type', 'application/json')
+                        ->withStatus(422);    
+
+        }else if($result == USER_EXISTS){
+            $message = array(); 
+            $message['error'] = true; 
+            $message['message'] = 'User Already Exists';
+
+            $response->write(json_encode($message));
+
+            return $response
+                        ->withHeader('Content-type', 'application/json')
+                        ->withStatus(422);    
         }
     }
-
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);    
 });
 
-//Checks that login parameter fields are not empty
+//Checks that parameter fields are not empty
 function haveEmptyParameters($required_params, $request, $response){
     $error = false; 
     $error_params = '';

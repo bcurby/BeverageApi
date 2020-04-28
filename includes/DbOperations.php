@@ -11,29 +11,20 @@
             $this->con = $db->connect(); 
         }
 
-        
-        //User login and authentication
-        public function userLogin($email, $password){
-            if($this->isEmailExist($email)){
-                $hashed_password = $this->getUsersPasswordByEmail($email); 
-                if(password_verify($password, $hashed_password)){
-                    return USER_AUTHENTICATED;
-                }else{
-                    return USER_PASSWORD_DO_NOT_MATCH; 
-                }
-            }else{
-                return USER_NOT_FOUND; 
+        //Creates a new user
+        public function createUser($email, $password, $firstName, $lastName, $phone){
+            if(!$this->isEmailExist($email)){
+                 $stmt = $this->con->prepare("INSERT INTO users (email, password, first name, last name, phone) VALUES (?, ?, ?, ?, ?)");
+                 $stmt->bind_param("sssss", $email, $password, $firstName, $lastName, $phone);
+                 if($stmt->execute()){
+                     return USER_CREATED; 
+                 }else{
+                     return USER_FAILURE;
+                 }
             }
-        }
+            return USER_EXISTS; 
+         }
 
-        private function getUsersPasswordByEmail($email){
-            $stmt = $this->con->prepare("SELECT password FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute(); 
-            $stmt->bind_result($password);
-            $stmt->fetch(); 
-            return $password; 
-        }
 
         private function isEmailExist($email){
             $stmt = $this->con->prepare("SELECT id FROM users WHERE email = ?");
