@@ -14,6 +14,7 @@ $app = new \Slim\App([
 ]);
 
 
+//Creates a new user record
 $app->post('/createuser', function(Request $request, Response $response){
 
     if(!haveEmptyParameters(array('email', 'password', 'firstName', 'lastName', 'phone'), $request, $response)){
@@ -72,6 +73,67 @@ $app->post('/createuser', function(Request $request, Response $response){
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);    
 });
+
+
+//Logs an existing user into their account
+$app->post('/userlogin', function(Request $request, Response $response){
+
+    if(!haveEmptyParameters(array('email', 'password'), $request, $response)){
+        $request_data = $request->getParsedBody(); 
+
+        $email = $request_data['email'];
+        $password = $request_data['password'];
+        
+        $db = new DbOperations; 
+
+        $result = $db->userLogin($email, $password);
+
+        if($result == USER_AUTHENTICATED){
+            
+            $user = $db->getUserByEmail($email);
+            $response_data = array();
+
+            $response_data['error']=false; 
+            $response_data['message'] = 'Login Successful';
+            $response_data['user']=$user; 
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);    
+
+        }else if($result == USER_NOT_FOUND){
+            $response_data = array();
+
+            $response_data['error']=true; 
+            $response_data['message'] = 'User does not exist';
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);    
+
+        }else if($result == USER_PASSWORD_DO_NOT_MATCH){
+            $response_data = array();
+
+            $response_data['error']=true; 
+            $response_data['message'] = 'Invalid login credentials';
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);  
+        }
+    }
+
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);    
+});
+
 
 //Checks that parameter fields are not empty
 function haveEmptyParameters($required_params, $request, $response){
