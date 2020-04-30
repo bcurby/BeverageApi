@@ -14,7 +14,7 @@
         //Creates a new user
         public function createUser($email, $password, $firstName, $lastName, $phone){
             if(!$this->isEmailExist($email)){
-                 $stmt = $this->con->prepare("INSERT INTO users (email, password, first name, last name, phone) VALUES (?, ?, ?, ?, ?)");
+                 $stmt = $this->con->prepare("INSERT INTO users (email, password, firstName, lastName, phone) VALUES (?, ?, ?, ?, ?)");
                  $stmt->bind_param("sssss", $email, $password, $firstName, $lastName, $phone);
                  if($stmt->execute()){
                      return USER_CREATED; 
