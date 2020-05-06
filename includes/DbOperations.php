@@ -59,6 +59,15 @@
         }
 
 
+        // Get items
+        public function getItems() {
+            //AS are present because the Android app expects those names as opposed to those used in the database
+            $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price` FROM items");
+
+            return $results->fetch_all(MYSQLI_ASSOC);
+        }
+
+
         //Returns a users associated password for verification during Login
         private function getUsersPasswordByEmail($email){
             $stmt = $this->con->prepare("SELECT password FROM users WHERE email = ?");
@@ -78,5 +87,6 @@
             $stmt->store_result(); 
             return $stmt->num_rows > 0;  
         }
+
 
     }

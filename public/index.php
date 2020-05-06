@@ -13,6 +13,17 @@ $app = new \Slim\App([
     ]
 ]);
 
+$app->get('/getitems', function(Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $items = $db->getItems();
+
+    return $response
+        ->withJson($items)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
 
 //Creates a new user record
 $app->post('/createuser', function(Request $request, Response $response){
