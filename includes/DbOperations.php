@@ -26,6 +26,17 @@
             return USER_EXISTS; 
         }
 
+        //Add item to user cart
+        public function addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity){
+            $stmt = $this->con->prepare("INSERT INTO cart (userID, itemID, itemTitle, itemPrice, itemQuantity) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $userID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
+            if($stmt->execute()){
+                return ADDED_TO_CART;
+            }else{
+                return CART_FAILURE;
+            }
+        }
+
 
         //Login existing user
         public function userLogin($email, $password){
@@ -87,6 +98,9 @@
             $stmt->store_result(); 
             return $stmt->num_rows > 0;  
         }
+
+
+
 
 
     }

@@ -13,6 +13,8 @@ $app = new \Slim\App([
     ]
 ]);
 
+
+//Get Menu Items for Browse Menu
 $app->get('/getitems', function(Request $request, Response $response) {
 
     $db = new DbOperations;
@@ -24,6 +26,41 @@ $app->get('/getitems', function(Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
+
+
+//Add a clicked item to user cart
+$app->post('/addtocart', function(Request $request, Response $response){
+
+    if(!haveEmptyParameters(array('userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity'), $request, $response)){
+
+        $request_data = $request->getParsedBody(); 
+
+        $userID = $request_data['userID'];
+        $itemID = $request_data['itemID'];
+        $itemTitle = $request_data['itemTitle'];
+        $itemPrice = $request_data['itemPrice']; 
+        $itemQuantity = $request_data['itemQuantity'];
+
+        $db = new DbOperations; 
+
+        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
+        
+        if($result == ADDED_TO_CART){
+
+            $message = array(); 
+            $message['error'] = false; 
+            $message['message'] = 'Added to Cart';
+
+            $response->write(json_encode($message));
+
+            return $response
+                        ->withHeader('Content-type', 'application/json')
+                        ->withStatus(303);
+
+        }
+    }
+});   
+
 
 //Creates a new user record
 $app->post('/createuser', function(Request $request, Response $response){

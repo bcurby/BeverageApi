@@ -13,3 +13,6 @@
     define('USER_NOT_FOUND', 202); 
     define('USER_PASSWORD_DO_NOT_MATCH', 203);
 
+    define('ADDED_TO_CART', 303);
+    define('CART_FAILURE', 304);
+
