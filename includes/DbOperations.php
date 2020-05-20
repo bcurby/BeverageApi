@@ -41,6 +41,36 @@
         return ITEM_ALREADY_IN_CART;
     }
     
+    /**
+     * Removes one or more cart items for a user. If $itemIDs is empty,
+     * all cart items for the user are removed.
+     * Returns CART_REMOVE_ITEM_SUCCESS if items are successfully removed,
+     * else returns CART_REMOVE_ITEM_FAILED if there is an error.
+     * 
+     * @param int $userID
+     * @param array<int> $itemIDs
+     * 
+     * @return int
+     */
+    public function removeCartItems($userID, $itemIDs)
+    {
+        // Ensure item IDs are all integers using the is_int function.
+        $itemIDs = array_filter($itemIDs, 'is_int');
+
+        $itemsClause = (count($itemIDs) < 1) ? "" : " AND itemID IN(" . implode(', ', $itemIDs) . ")";
+        $stmt = $this->con->prepare(
+            "DELETE FROM cart WHERE userID = ?" . $itemsClause
+        );
+        $stmt->bind_param('i', $userID);
+        if ($stmt->execute()) {
+            $result = CART_REMOVE_ITEM_SUCCESS;
+        } else {
+            $result = CART_REMOVE_ITEM_FAILED;
+        }
+
+        $stmt->close();
+        return $result;
+    }
 
         //Login existing user
         public function userLogin($email, $password){

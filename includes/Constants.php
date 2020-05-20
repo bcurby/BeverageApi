@@ -16,5 +16,7 @@
     define('ADDED_TO_CART', 303);
     define('ITEM_ALREADY_IN_CART', 304);
     define('CART_EMPTY', 305);
+    define('CART_REMOVE_ITEM_SUCCESS', 306);
+    define('CART_REMOVE_ITEM_FAILED', 307);
 
 
