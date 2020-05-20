@@ -14,5 +14,7 @@
     define('USER_PASSWORD_DO_NOT_MATCH', 203);
 
     define('ADDED_TO_CART', 303);
-    define('CART_FAILURE', 304);
+    define('ITEM_ALREADY_IN_CART', 304);
+    define('CART_EMPTY', 305);
+
 
