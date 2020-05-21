@@ -27,6 +27,21 @@
         }
 
 
+        //Add item to user cart
+        public function addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $cartStatus){
+            if(!$this->isCartItemExist($userID, $itemID, $cartStatus)){
+                $stmt = $this->con->prepare("INSERT INTO cart (userID, itemID, itemTitle, itemPrice, itemQuantity, cartStatus) 
+                VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssss", $userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $cartStatus);
+                if($stmt->execute()) {
+                    return ADDED_TO_CART;
+            
+            }
+        }
+        return ITEM_ALREADY_IN_CART;
+    }
+    
+
         //Login existing user
         public function userLogin($email, $password){
             if($this->isEmailExist($email)){
@@ -59,13 +74,42 @@
         }
 
 
-        // Get items
+        // Get Menu Items
         public function getItems() {
             //AS are present because the Android app expects those names as opposed to those used in the database
             $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price` FROM items");
 
             return $results->fetch_all(MYSQLI_ASSOC);
         }
+
+
+        // Get Cart Items
+        public function getCartItems($userID) {
+            
+            if($this->isCartActive($userID)){
+            
+                $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity FROM cart WHERE cartStatus = 'active' AND userID = ?");
+                $stmt->bind_param("s", $userID);
+                $stmt->execute(); 
+                $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity);
+
+                $cart = array();
+
+                while ($stmt->fetch()) {
+                    $temp = array();
+
+                    $temp['name'] = $itemTitle; 
+                    $temp['price']= $itemPrice; 
+                    $temp['quantity'] = $itemQuantity; 
+                
+                    array_push($cart, $temp);
+                }
+                return $cart;
+            } else {
+               return CART_EMPTY;
+            }
+        }
+    
 
 
         //Returns a users associated password for verification during Login
@@ -87,6 +131,29 @@
             $stmt->store_result(); 
             return $stmt->num_rows > 0;  
         }
+
+
+        //Check that the item exists in the users cart
+        private function isCartItemExist($userID, $itemID, $cartStatus) {
+            $stmt = $this->con->prepare("SELECT cartID FROM cart WHERE userID = ? AND itemID = ? AND cartStatus = ?");
+            $stmt->bind_param("sss", $userID, $itemID, $cartStatus);
+            $stmt->execute(); 
+            $stmt->store_result(); 
+            return $stmt->num_rows > 0;  
+        }
+
+
+        //Check that the user has an active cart
+        private function isCartActive($userID) {
+            $stmt = $this->con->prepare("SELECT * FROM cart WHERE userID = ? AND cartStatus = 'active'");
+            $stmt->bind_param("s", $userID);
+            $stmt->execute(); 
+            $stmt->store_result(); 
+            return $stmt->num_rows > 0;  
+        }
+
+
+
 
 
     }
