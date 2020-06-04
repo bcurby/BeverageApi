@@ -43,12 +43,12 @@
     
 
         //Place a user order into the 'orders' table
-        public function placeOrder($userID){
+        public function placeOrder($userID, $orderTotal){
             $stmt = $this->con->prepare("INSERT INTO orders SELECT * FROM cart WHERE userID = ? AND cartStatus = 'active'");
             $stmt->bind_param("s", $userID);
 
-            $stmt2 = $this->con->prepare("INSERT INTO orderpayment (userID, orderTotal, orderStatus) VALUES (?, 20, 'active')");
-            $stmt2->bind_param("s", $userID);
+            $stmt2 = $this->con->prepare("INSERT INTO orderpayment (userID, orderTotal, orderStatus) VALUES (?, ?, 'active')");
+            $stmt2->bind_param("ss", $userID, $orderTotal);
 
             $stmt3 = $this->con->prepare("UPDATE cart SET cartStatus = 'ordered' WHERE userID = ? AND cartStatus = 'active'");
             $stmt3->bind_param("s", $userID);

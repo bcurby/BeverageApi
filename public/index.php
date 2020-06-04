@@ -99,13 +99,14 @@ $app->post('/placeorder', function(Request $request, Response $response){
         $creditCardCVV = $request_data['creditCardCVV'];
         $expiryMonth = $request_data['expiryMonth'];
         $expiryYear = $request_data['expiryYear'];
+        $orderTotal = $request_data['orderTotal'];
 
    //if(!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear'), $request, $response)){
-    if(!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear)) {
+    if(!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal)) {
 
         $db = new DbOperations; 
 
-        $result = $db->placeOrder($userID);
+        $result = $db->placeOrder($userID, $orderTotal);
         
         if($result == ORDER_PLACED){
 
@@ -302,13 +303,14 @@ function haveEmptyParameters($required_params, $request, $response){
 
 
 //Pay for order with users credit card details
-function invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear) {
+function invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal) {
     
     $credit_details = array();
     array_push($credit_details, $creditCardNumber);
     array_push($credit_details, $creditCardCVV);
     array_push($credit_details, $expiryMonth);
     array_push($credit_details, $expiryYear);
+    array_push($credit_details, $orderTotal);
 
     
     if(in_array(0, $credit_details)) {
