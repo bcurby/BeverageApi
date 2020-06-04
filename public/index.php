@@ -89,6 +89,59 @@ $app->post('/createuser', function(Request $request, Response $response){
 });
 
 
+//Add an order to the 'orders' table
+$app->post('/placeorder', function(Request $request, Response $response){
+
+    $request_data = $request->getParsedBody(); 
+
+        $userID = $request_data['userID'];
+        $creditCardNumber = $request_data['creditCardNumber'];
+        $creditCardCVV = $request_data['creditCardCVV'];
+        $expiryMonth = $request_data['expiryMonth'];
+        $expiryYear = $request_data['expiryYear'];
+
+   //if(!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear'), $request, $response)){
+    if(!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear)) {
+
+        $db = new DbOperations; 
+
+        $result = $db->placeOrder($userID);
+        
+        if($result == ORDER_PLACED){
+
+            $message = array(); 
+            $message['error'] = false; 
+            $message['message'] = 'Your order was successful';
+
+            $response->write(json_encode($message));
+
+            return $response
+                        ->withHeader('Content-type', 'application/json')
+                        ->withStatus(401);
+
+        } else if($result == ORDER_FAILED) {
+            
+            $message = array(); 
+            $message['error'] = false; 
+            $message['message'] = 'There was a problem placing your order';
+
+            $response->write(json_encode($message));
+
+            return $response
+                        ->withHeader('Content-type', 'application/json')
+                        ->withStatus(402);
+        }
+    }
+    $error_detail = array();
+    $error_detail['error'] = true; 
+    $error_detail['message'] = 'There was a problem placing payment with your credit card';
+    $response->write(json_encode($error_detail));
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});   
+
+
 //Add a clicked item to user cart
 $app->post('/addtocart', function(Request $request, Response $response){
 
@@ -245,6 +298,27 @@ function haveEmptyParameters($required_params, $request, $response){
         $response->write(json_encode($error_detail));
     }
     return $error; 
+}
+
+
+//Pay for order with users credit card details
+function invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear) {
+    
+    $credit_details = array();
+    array_push($credit_details, $creditCardNumber);
+    array_push($credit_details, $creditCardCVV);
+    array_push($credit_details, $expiryMonth);
+    array_push($credit_details, $expiryYear);
+
+    
+    if(in_array(0, $credit_details)) {
+        //Default value of 0 for any of the credit card details means the payment would not proceed
+        return true;
+    } else {
+        //Default value of 0 is not present for any of the credit card details
+        //Payment proceeds and false is returned
+       return false;
+    }
 }
 
 $app->run();
