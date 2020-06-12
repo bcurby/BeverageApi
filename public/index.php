@@ -147,7 +147,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
 //Add a clicked item to user cart
 $app->post('/addtocart', function (Request $request, Response $response) {
 
-    if (!haveEmptyParameters(array('userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity', 'cartStatus'), $request, $response)) {
+    if (!haveEmptyParameters(array('userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity'), $request, $response)) {
 
         $request_data = $request->getParsedBody();
 
@@ -156,11 +156,10 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         $itemTitle = $request_data['itemTitle'];
         $itemPrice = $request_data['itemPrice'];
         $itemQuantity = $request_data['itemQuantity'];
-        $cartStatus = $request_data['cartStatus'];
 
         $db = new DbOperations;
 
-        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $cartStatus);
+        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
 
         if ($result == ADDED_TO_CART) {
 
@@ -173,6 +172,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(303);
+                
         } else if ($result == ITEM_ALREADY_IN_CART) {
 
             $message = array();
@@ -183,7 +183,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(304);
+                ->withStatus(200);
         }
     }
 });
