@@ -208,7 +208,7 @@ $app->get('/getcartitems', function (Request $request, Response $response) {
 
         return $response
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(305);
+            ->withStatus(303);
     } else {
 
         return $response

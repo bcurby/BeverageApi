@@ -135,8 +135,10 @@ class DbOperations
 
         if ($this->isCartActive($userID)) {
 
-            $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity FROM cart WHERE cartStatus = 'active' AND userID = ?");
-            $stmt->bind_param("s", $userID);
+            $cartID = $this->getCartIDByUserID($userID);
+
+            $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity FROM cartitem WHERE cartID = ?");
+            $stmt->bind_param("s", $cartID);
             $stmt->execute();
             $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity);
 

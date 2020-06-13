@@ -15,7 +15,7 @@
 
     define('ADDED_TO_CART', 303);
     define('ITEM_ALREADY_IN_CART', 200);
-    define('CART_EMPTY', 305);
+    define('CART_EMPTY', 303);
 
     define('ORDER_PLACED', 401);
     define('ORDER_FAILED', 402);
