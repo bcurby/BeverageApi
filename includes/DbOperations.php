@@ -34,13 +34,13 @@ class DbOperations
     public function addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity)
     {
 
-        //isCartActive
+        //does this user have an activer cart
         if ($this->isCartActive($userID)) {
 
-            //then get the cartID
+            //if so then get the cartID
             $cartID = $this->getCartIDByUserID($userID);
 
-            // check if the cartItem exists
+            // check if the cartItem exists in the cart
             if (!$this->isCartItemExist($cartID, $itemID)) {
                 $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity) 
                 VALUES (?, ?, ?, ?, ?)");
@@ -69,17 +69,22 @@ class DbOperations
     //Place a user order into the 'orders' table
     public function placeOrder($userID, $orderTotal)
     {
-        $stmt = $this->con->prepare("INSERT INTO orders SELECT * FROM cart WHERE userID = ? AND cartStatus = 'active'");
-        $stmt->bind_param("s", $userID);
 
-        $stmt2 = $this->con->prepare("INSERT INTO orderpayment (userID, orderTotal, orderStatus) VALUES (?, ?, 'active')");
-        $stmt2->bind_param("ss", $userID, $orderTotal);
+        if ($this->isCartActive($userID)) {
 
-        $stmt3 = $this->con->prepare("UPDATE cart SET cartStatus = 'ordered' WHERE userID = ? AND cartStatus = 'active'");
-        $stmt3->bind_param("s", $userID);
+            $cartID = $this->getCartIDByUserID($userID);
 
-        if ($stmt->execute() && $stmt2->execute() && $stmt3->execute()) {
-            return ORDER_PLACED;
+            $stmt = $this->con->prepare("INSERT INTO orders2 (cartID, userID, orderTotal, orderStatus)
+                VALUES (?, ?, ?, 1)");
+            $stmt->bind_param("sss", $cartID, $userID, $orderTotal);
+
+            $stmt2 = $this->con->prepare("UPDATE cart2 SET cartStatus = 0 WHERE cartID = ?");
+            $stmt2->bind_param("s", $cartID);
+
+            if ($stmt->execute() && $stmt2->execute()) {
+                return ORDER_PLACED;
+            }
+            return ORDER_FAILED;
         }
         return ORDER_FAILED;
     }
@@ -162,7 +167,7 @@ class DbOperations
     //Returns a users cartID by their associated userID
     private function getCartIDByUserID($userID)
     {
-        $stmt = $this->con->prepare("SELECT cartID FROM cart2 WHERE userID = ?");
+        $stmt = $this->con->prepare("SELECT cartID FROM cart2 WHERE userID = ? AND cartStatus = 1");
         $stmt->bind_param("s", $userID);
         $stmt->execute();
         $stmt->bind_result($cartID);

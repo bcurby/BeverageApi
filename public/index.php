@@ -99,7 +99,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
     $expiryYear = $request_data['expiryYear'];
     $orderTotal = $request_data['orderTotal'];
 
-    if (!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear'), $request, $response)) {
+    if (!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear', 'orderTotal'), $request, $response)) {
         if (!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal)) {
 
             $db = new DbOperations;
