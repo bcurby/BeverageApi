@@ -78,7 +78,7 @@ $app->post('/createuser', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(422);
+                ->withStatus(403);
         }
     }
     return $response
@@ -116,7 +116,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
 
                 return $response
                     ->withHeader('Content-type', 'application/json')
-                    ->withStatus(401);
+                    ->withStatus(201);
             } else if ($result == ORDER_FAILED) {
 
                 $message = array();
@@ -127,7 +127,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
 
                 return $response
                     ->withHeader('Content-type', 'application/json')
-                    ->withStatus(402);
+                    ->withStatus(422);
             }
         }
         $error_detail = array();
@@ -171,7 +171,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(303);
+                ->withStatus(200);
                 
         } else if ($result == ITEM_ALREADY_IN_CART) {
 
@@ -183,9 +183,12 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);
+                ->withStatus(403);
         }
     }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
@@ -214,7 +217,7 @@ $app->get('/getcartitems', function (Request $request, Response $response) {
         return $response
             ->withJson($cart)
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(200);
+            ->withStatus(201);
     }
 });
 
@@ -245,7 +248,7 @@ $app->post('/userlogin', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);
+                ->withStatus(202);
         } else if ($result == USER_NOT_FOUND) {
             $response_data = array();
 
@@ -267,7 +270,7 @@ $app->post('/userlogin', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);
+                ->withStatus(401);
         }
     }
 
