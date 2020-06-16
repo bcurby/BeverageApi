@@ -27,6 +27,19 @@ $app->get('/getitems', function (Request $request, Response $response) {
         ->withStatus(200);
 });
 
+//get orders for listing orders view
+
+$app->get('/getorderitems', function (Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $items = $db->getOrdersDetails();
+
+    return $response
+        ->withJson($items)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
 
 //Creates a new user record
 $app->post('/createuser', function (Request $request, Response $response) {
@@ -218,7 +231,6 @@ $app->get('/getcartitems', function (Request $request, Response $response) {
     }
 });
 
-
 //Logs an existing user into their account
 $app->post('/userlogin', function (Request $request, Response $response) {
 
@@ -275,6 +287,83 @@ $app->post('/userlogin', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
 });
+
+//Logs an existing staff to viewing orders
+$app->post('/staffValidate', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array('staffId'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $staffID = $request_data['staffID'];
+        $db = new DbOperations;
+
+        $result = $db->staffValidate($staffID);
+        if ($result == STAFF_AUTHENTICATED) {
+
+            $staff = $db->getStaffByID($staffID);
+            $response_data = array();
+
+            $response_data['error'] = false;
+            $response_data['message'] = 'Login Successful';
+            $response_data['staff'] = $staff;
+
+            $response->write(json_encode($response_data));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+        } else if ($result == STAFF_NOT_FOUND) {
+            $response_data = array();
+
+            $response_data['error'] = true;
+            $response_data['message'] = 'Staff ID is not found';
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+
+        }
+    }
+
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
+//Logs an existing user into their account
+$app->post('/browsemenu', function (Request $request, Response $response) {
+
+});
+
+$app->get('/getitemscart', function (Request $request, Response $response) {
+
+    $orderID = $_GET['orderID'];
+
+    $db = new DbOperations;
+
+    $cart = $db->getItemsCart($orderID);
+    if ($cart == CART_EMPTY) {
+
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'The cart is empty';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(501);
+    } else {
+
+        return $response
+            ->withJson($cart)
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(502);
+    }
+
+});
+
 
 
 //Checks that parameter fields are not empty
