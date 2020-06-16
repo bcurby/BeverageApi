@@ -51,7 +51,7 @@ class DbOperations
             }
             return ITEM_ALREADY_IN_CART;
         } else {
-            $stmt = $this->con->prepare("INSERT INTO cart2 (userID, cartStatus) VALUES (?, 1)");
+            $stmt = $this->con->prepare("INSERT INTO cart (userID, cartStatus) VALUES (?, 1)");
             $stmt->bind_param("s", $userID);
             $stmt->execute();
             $cartID = $this->getCartIDByUserID($userID);
@@ -74,11 +74,11 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("INSERT INTO orders2 (cartID, userID, orderTotal, orderStatus)
+            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, orderStatus)
                 VALUES (?, ?, ?, 1)");
             $stmt->bind_param("sss", $cartID, $userID, $orderTotal);
 
-            $stmt2 = $this->con->prepare("UPDATE cart2 SET cartStatus = 0 WHERE cartID = ?");
+            $stmt2 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
             $stmt2->bind_param("s", $cartID);
 
             if ($stmt->execute() && $stmt2->execute()) {
@@ -167,7 +167,7 @@ class DbOperations
     //Returns a users cartID by their associated userID
     private function getCartIDByUserID($userID)
     {
-        $stmt = $this->con->prepare("SELECT cartID FROM cart2 WHERE userID = ? AND cartStatus = 1");
+        $stmt = $this->con->prepare("SELECT cartID FROM cart WHERE userID = ? AND cartStatus = 1");
         $stmt->bind_param("s", $userID);
         $stmt->execute();
         $stmt->bind_result($cartID);
@@ -212,7 +212,7 @@ class DbOperations
     //Check that the user has an active cart
     private function isCartActive($userID)
     {
-        $stmt = $this->con->prepare("SELECT * FROM cart2 WHERE userID = ? AND cartStatus = 1");
+        $stmt = $this->con->prepare("SELECT * FROM cart WHERE userID = ? AND cartStatus = 1");
         $stmt->bind_param("s", $userID);
         $stmt->execute();
         $stmt->store_result();
