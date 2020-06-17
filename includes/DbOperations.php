@@ -138,11 +138,11 @@ class DbOperations
         }
     }
 
-    //Getting cart items for backend
-    public function getItemsCart($orderID)
+    //CAFE SIDE - Getting order items for each order as they are clicked
+    public function getOrderItems($cartID)
     {
             $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity FROM cartitem WHERE cartID = ?");
-            $stmt->bind_param("s", $orderID);
+            $stmt->bind_param("s", $cartID);
             $stmt->execute();
             $stmt->bind_result($itemID,$itemTitle, $itemQuantity);
 
@@ -205,15 +205,17 @@ class DbOperations
         return $stmt->num_rows > 0;
     }
 
-// Get Menu Items
+
+    // Get Menu Items
     public function getOrdersDetails()
     {
-        $results = $this->con->query("SELECT `orderID`, `status` FROM orders");
+        $results = $this->con->query("SELECT orderID, cartID FROM orders WHERE orderStatus = 1");
 
         return $results->fetch_all(MYSQLI_ASSOC);
     }
 
-//returns staff from database using id
+
+    //returns staff from database using id
     public function getStaffByID($staffID)
     {
         $stmt = $this->con->prepare("SELECT id, firstName, lastName, staffLevel FROM staff WHERE id = ?");

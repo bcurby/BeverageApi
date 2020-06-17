@@ -27,9 +27,9 @@ $app->get('/getitems', function (Request $request, Response $response) {
         ->withStatus(200);
 });
 
-//get orders for listing orders view
 
-$app->get('/getorderitems', function (Request $request, Response $response) {
+//CAFE SIDE - get orders for listing orders view
+$app->get('/getorderslist', function (Request $request, Response $response) {
 
     $db = new DbOperations;
 
@@ -40,6 +40,7 @@ $app->get('/getorderitems', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
+
 
 //Creates a new user record
 $app->post('/createuser', function (Request $request, Response $response) {
@@ -231,6 +232,7 @@ $app->get('/getcartitems', function (Request $request, Response $response) {
     }
 });
 
+
 //Logs an existing user into their account
 $app->post('/userlogin', function (Request $request, Response $response) {
 
@@ -288,6 +290,7 @@ $app->post('/userlogin', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+
 //Logs an existing staff to viewing orders
 $app->post('/staffValidate', function (Request $request, Response $response) {
 
@@ -331,18 +334,21 @@ $app->post('/staffValidate', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+
 //Logs an existing user into their account
 $app->post('/browsemenu', function (Request $request, Response $response) {
 
 });
 
-$app->get('/getitemscart', function (Request $request, Response $response) {
 
-    $orderID = $_GET['orderID'];
+//CAFE SIDE - gets the order items for each order clicked
+$app->get('/getorderitems', function (Request $request, Response $response) {
+
+    $cartID = $_GET['cartID'];
 
     $db = new DbOperations;
 
-    $cart = $db->getItemsCart($orderID);
+    $cart = $db->getOrderItems($cartID);
     if ($cart == CART_EMPTY) {
 
         $message = array();
@@ -353,13 +359,13 @@ $app->get('/getitemscart', function (Request $request, Response $response) {
 
         return $response
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(501);
+            ->withStatus(502);
     } else {
 
         return $response
             ->withJson($cart)
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(502);
+            ->withStatus(200);
     }
 
 });

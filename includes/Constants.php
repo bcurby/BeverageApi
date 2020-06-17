@@ -23,7 +23,7 @@
     define('ORDER_PLACED', 401);
     define('ORDER_FAILED', 402);
 
-    define("CART_ITEMS_FOUND", 501);
+    define("CART_ITEMS_FOUND", 200);
     define("CART_ITEMS_FAILED", 502);
 
 
