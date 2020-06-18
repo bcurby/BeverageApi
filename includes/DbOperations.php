@@ -218,14 +218,14 @@ class DbOperations
     //returns staff from database using id
     public function getStaffByID($staffID)
     {
-        $stmt = $this->con->prepare("SELECT id, firstName, lastName, staffLevel FROM staff WHERE id = ?");
+        $stmt = $this->con->prepare("SELECT staffID, firstName, lastName, staffLevel FROM staff WHERE staffID = ?");
         $stmt->bind_param("s", $staffID);
         $stmt->execute();
         $stmt->bind_result($staffID, $firstName, $lastName, $staffLevel);
         $stmt->fetch();
 
         $staff = array();
-        $staff['id'] = $staffID;
+        $staff['staffID'] = $staffID;
         $staff['firstName'] = $firstName;
         $staff['lastName'] = $lastName;
         $staff['staffLevel'] = $staffLevel;
@@ -233,19 +233,19 @@ class DbOperations
     }
 
     //Login existing staff
-    public function staffValidate($staffId)
+    public function staffValidate($staffID)
     {
-        if ($this->isStaffExist($staffId)) {
+        if ($this->isStaffExist($staffID)) {
             return STAFF_AUTHENTICATED;
         } else
             return STAFF_NOT_FOUND;
     }
 
     //Check for staff record exists in database
-    private function isStaffExist($email)
+    private function isStaffExist($staffID)
     {
-        $stmt = $this->con->prepare("SELECT id FROM staff WHERE email = ?");
-        $stmt->bind_param("s", $email);
+        $stmt = $this->con->prepare("SELECT * FROM staff WHERE staffID = ?");
+        $stmt->bind_param("s", $staffID);
         $stmt->execute();
         $stmt->store_result();
         return $stmt->num_rows > 0;

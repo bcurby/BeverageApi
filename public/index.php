@@ -294,7 +294,7 @@ $app->post('/userlogin', function (Request $request, Response $response) {
 //Logs an existing staff to viewing orders
 $app->post('/staffValidate', function (Request $request, Response $response) {
 
-    if (!haveEmptyParameters(array('staffId'), $request, $response)) {
+    if (!haveEmptyParameters(array('staffID'), $request, $response)) {
         $request_data = $request->getParsedBody();
 
         $staffID = $request_data['staffID'];
@@ -313,7 +313,7 @@ $app->post('/staffValidate', function (Request $request, Response $response) {
             $response->write(json_encode($response_data));
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);
+                ->withStatus(202);
         } else if ($result == STAFF_NOT_FOUND) {
             $response_data = array();
 
@@ -332,12 +332,6 @@ $app->post('/staffValidate', function (Request $request, Response $response) {
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
-});
-
-
-//Logs an existing user into their account
-$app->post('/browsemenu', function (Request $request, Response $response) {
-
 });
 
 
@@ -369,7 +363,6 @@ $app->get('/getorderitems', function (Request $request, Response $response) {
     }
 
 });
-
 
 
 //Checks that parameter fields are not empty
