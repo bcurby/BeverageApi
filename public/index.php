@@ -343,25 +343,11 @@ $app->get('/getorderitems', function (Request $request, Response $response) {
     $db = new DbOperations;
 
     $cart = $db->getOrderItems($cartID);
-    if ($cart == CART_EMPTY) {
 
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'The cart is empty';
-
-        $response->write(json_encode($message));
-
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(502);
-    } else {
-
-        return $response
-            ->withJson($cart)
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(200);
-    }
-
+    return $response
+        ->withJson($cart)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
 });
 
 
