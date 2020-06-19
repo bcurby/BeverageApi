@@ -78,7 +78,7 @@ $app->post('/createuser', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(422);
+                ->withStatus(403);
         }
     }
     return $response
@@ -99,7 +99,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
     $expiryYear = $request_data['expiryYear'];
     $orderTotal = $request_data['orderTotal'];
 
-    if (!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear'), $request, $response)) {
+    if (!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear', 'orderTotal'), $request, $response)) {
         if (!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal)) {
 
             $db = new DbOperations;
@@ -116,7 +116,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
 
                 return $response
                     ->withHeader('Content-type', 'application/json')
-                    ->withStatus(401);
+                    ->withStatus(201);
             } else if ($result == ORDER_FAILED) {
 
                 $message = array();
@@ -127,7 +127,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
 
                 return $response
                     ->withHeader('Content-type', 'application/json')
-                    ->withStatus(402);
+                    ->withStatus(422);
             }
         }
         $error_detail = array();
@@ -147,7 +147,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
 //Add a clicked item to user cart
 $app->post('/addtocart', function (Request $request, Response $response) {
 
-    if (!haveEmptyParameters(array('userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity', 'cartStatus'), $request, $response)) {
+    if (!haveEmptyParameters(array('userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity'), $request, $response)) {
 
         $request_data = $request->getParsedBody();
 
@@ -156,11 +156,10 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         $itemTitle = $request_data['itemTitle'];
         $itemPrice = $request_data['itemPrice'];
         $itemQuantity = $request_data['itemQuantity'];
-        $cartStatus = $request_data['cartStatus'];
 
         $db = new DbOperations;
 
-        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $cartStatus);
+        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
 
         if ($result == ADDED_TO_CART) {
 
@@ -172,7 +171,8 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(303);
+                ->withStatus(200);
+                
         } else if ($result == ITEM_ALREADY_IN_CART) {
 
             $message = array();
@@ -183,9 +183,12 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(304);
+                ->withStatus(403);
         }
     }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
@@ -208,13 +211,13 @@ $app->get('/getcartitems', function (Request $request, Response $response) {
 
         return $response
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(305);
+            ->withStatus(303);
     } else {
 
         return $response
             ->withJson($cart)
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(200);
+            ->withStatus(201);
     }
 });
 
@@ -245,7 +248,7 @@ $app->post('/userlogin', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);
+                ->withStatus(202);
         } else if ($result == USER_NOT_FOUND) {
             $response_data = array();
 
@@ -267,7 +270,7 @@ $app->post('/userlogin', function (Request $request, Response $response) {
 
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(200);
+                ->withStatus(401);
         }
     }
 
