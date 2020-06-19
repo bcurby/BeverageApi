@@ -42,7 +42,7 @@ class DbOperations
 
             // check if the cartItem exists in the cart
             if (!$this->isCartItemExist($cartID, $itemID)) {
-                $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity) 
+                $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity) 
                 VALUES (?, ?, ?, ?, ?)");
                 $stmt->bind_param("sssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
                 if ($stmt->execute()) {
@@ -55,7 +55,7 @@ class DbOperations
             $stmt->bind_param("s", $userID);
             $stmt->execute();
             $cartID = $this->getCartIDByUserID($userID);
-            $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity) 
+            $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity) 
                     VALUES (?, ?, ?, ?, ?)");
             $stmt->bind_param("sssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
             if ($stmt->execute()) {
@@ -201,7 +201,7 @@ class DbOperations
     //Check that the item exists in the users cart
     private function isCartItemExist($cartID, $itemID)
     {
-        $stmt = $this->con->prepare("SELECT * FROM cartItem WHERE cartID = ? AND itemID = ?");
+        $stmt = $this->con->prepare("SELECT * FROM cartitem WHERE cartID = ? AND itemID = ?");
         $stmt->bind_param("ss", $cartID, $itemID);
         $stmt->execute();
         $stmt->store_result();
