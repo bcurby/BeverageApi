@@ -218,4 +218,71 @@ class DbOperations
         $stmt->store_result();
         return $stmt->num_rows > 0;
     }
+
+
+    //CAFE SIDE - Getting order items for each order as they are clicked
+    public function getOrderItems($cartID)
+    {
+            $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity FROM cartitem WHERE cartID = ?");
+            $stmt->bind_param("s", $cartID);
+            $stmt->execute();
+            $stmt->bind_result($itemID,$itemTitle, $itemQuantity);
+
+            $cart = array();
+
+            while ($stmt->fetch()) {
+                $temp = array();
+
+                $temp['itemID'] = $itemID;
+                $temp['itemTitle'] = $itemTitle;
+                $temp['quantity'] = $itemQuantity;
+
+                array_push($cart, $temp);
+            }
+            return $cart;
+    }
+
+    //returns staff from database using id
+    public function getStaffByID($staffID)
+    {
+        $stmt = $this->con->prepare("SELECT staffID, firstName, lastName, staffLevel FROM staff WHERE staffID = ?");
+        $stmt->bind_param("s", $staffID);
+        $stmt->execute();
+        $stmt->bind_result($staffID, $firstName, $lastName, $staffLevel);
+        $stmt->fetch();
+
+        $staff = array();
+        $staff['staffID'] = $staffID;
+        $staff['firstName'] = $firstName;
+        $staff['lastName'] = $lastName;
+        $staff['staffLevel'] = $staffLevel;
+        return $staff;
+    }
+
+    //Login existing staff
+    public function staffValidate($staffID)
+    {
+        if ($this->isStaffExist($staffID)) {
+            return STAFF_AUTHENTICATED;
+        } else
+            return STAFF_NOT_FOUND;
+    }
+
+    //Check for staff record exists in database
+    private function isStaffExist($staffID)
+    {
+        $stmt = $this->con->prepare("SELECT * FROM staff WHERE staffID = ?");
+        $stmt->bind_param("s", $staffID);
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
+
+    // Get Menu Items
+    public function getOrdersDetails()
+    {
+        $results = $this->con->query("SELECT orderID, cartID FROM orders WHERE orderStatus = 1");
+
+        return $results->fetch_all(MYSQLI_ASSOC);
+    }
 }

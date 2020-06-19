@@ -13,6 +13,9 @@
     define('USER_NOT_FOUND', 200); 
     define('USER_PASSWORD_DO_NOT_MATCH', 401);
 
+    define('STAFF_AUTHENTICATED', 202);
+    define('STAFF_NOT_FOUND', 200);
+
     define('ADDED_TO_CART', 201);
     define('ITEM_ALREADY_IN_CART', 403);
     define('CART_EMPTY', 303);
@@ -20,4 +23,5 @@
     define('ORDER_PLACED', 201);
     define('ORDER_FAILED', 422);
 
-
+    define("CART_ITEMS_FOUND", 200);
+    define("CART_ITEMS_FAILED", 402);
