@@ -326,4 +326,76 @@ function invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiry
     }
 }
 
+//CAFE SIDE - get orders for listing orders view
+$app->get('/getorderslist', function (Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $items = $db->getOrdersDetails();
+
+    return $response
+        ->withJson($items)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+//Logs an existing staff to viewing orders
+$app->post('/staffValidate', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array('staffID'), $request, $response)) {
+        $request_data = $request->getParsedBody();
+
+        $staffID = $request_data['staffID'];
+        $db = new DbOperations;
+
+        $result = $db->staffValidate($staffID);
+        if ($result == STAFF_AUTHENTICATED) {
+
+            $staff = $db->getStaffByID($staffID);
+            $response_data = array();
+
+            $response_data['error'] = false;
+            $response_data['message'] = 'Login Successful';
+            $response_data['staff'] = $staff;
+
+            $response->write(json_encode($response_data));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(202);
+        } else if ($result == STAFF_NOT_FOUND) {
+            $response_data = array();
+
+            $response_data['error'] = true;
+            $response_data['message'] = 'Staff ID is not found';
+
+            $response->write(json_encode($response_data));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(200);
+
+        }
+    }
+
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
+//CAFE SIDE - gets the order items for each order clicked
+$app->get('/getorderitems', function (Request $request, Response $response) {
+
+    $cartID = $_GET['cartID'];
+
+    $db = new DbOperations;
+
+    $cart = $db->getOrderItems($cartID);
+
+    return $response
+        ->withJson($cart)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+
 $app->run();
