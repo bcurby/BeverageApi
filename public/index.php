@@ -191,6 +191,43 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+//empty cart
+$app->post('/emptycart', function (Request $request, Response $response) {
+    
+    $request_data = $request->getParsedBody();
+
+    $userID = $request_data['userID'];
+
+    $db = new DbOperations;
+
+    $result = $db->emptyCart($userID);
+
+    if ($result == CART_EMPTY_PASS) {
+
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Cart Emptied';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+            
+    } else if ($result == CART_EMPTY_FAILED) {
+
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Cart Failed to Empty';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }    
+ });
+
 
 //Get Cart Items for Cart Activity
 $app->get('/getcartitems', function (Request $request, Response $response) {

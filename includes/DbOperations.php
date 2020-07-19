@@ -65,9 +65,8 @@ class DbOperations
         return ITEM_ALREADY_IN_CART;
     }
 
-    public function emptyCart($cartID) {
+    public function emptyCart($userID) {
         $cartID = $this->getCartIDByUserID($userID);
-        $stmt = $this->con->prepare("DELETE FROM cartItem WHERE cartID = $cartID");
         $stmt = $this->con->prepare("DELETE FROM cart WHERE cartID = $cartID");
         if ($stmt->execute()) {
                 return CART_EMPTY_PASS;
