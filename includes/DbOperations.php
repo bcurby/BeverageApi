@@ -29,7 +29,7 @@ class DbOperations
         return USER_EXISTS;
     }
 
-
+    
     //Add item to user cart
     public function addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity)
     {
@@ -72,8 +72,19 @@ class DbOperations
                 return CART_EMPTY_PASS;
         } else {
                 return CART_EMPTY_FAILED;
-            }
         }
+    }
+
+    //Creates a new delivery
+    public function bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown) {
+        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, streetNumber, streetName, postCode, cityTown) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssss", $userID, $streetNumber, $streetName, $postCode, $cityTown);
+        if ($stmt->execute()) {
+            return DELIVERY_CREATED;
+        } else {
+            return DELIVERY_FAILED;
+        }
+    }
 
 
     //Place a user order into the 'orders' table
