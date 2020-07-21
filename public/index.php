@@ -450,7 +450,6 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
     $result = $db->bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown);
     
     if ($result == DELIVERY_CREATED) {
-
         $message = array();
         $message['error'] = false;
         $message['message'] = 'Delivery Submitted';
@@ -461,8 +460,7 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
             
-    } else if ($result == DELIVERY_CREATED) {
-
+    } else if ($result == DELIVERY_FAILED) {
         $message = array();
         $message['error'] = false;
         $message['message'] = 'Delivery Failed';
