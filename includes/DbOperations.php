@@ -72,13 +72,15 @@ class DbOperations
                 return CART_EMPTY_PASS;
         } else {
                 return CART_EMPTY_FAILED;
-        }
+            }
     }
 
     //Creates a new delivery
-    public function bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown) {
-        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, streetNumber, streetName, postCode, cityTown) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $userID, $streetNumber, $streetName, $postCode, $cityTown);
+    public function bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown)
+    {
+        $cartID = $this->getCartIDByUserID($userID);
+        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, cartID, streetNumber, streetName, postCode, cityTown) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssss", $userID, $cartID, $streetNumber, $streetName, $postCode, $cityTown);
         if ($stmt->execute()) {
             return DELIVERY_CREATED;
         } else {
