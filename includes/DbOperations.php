@@ -68,6 +68,7 @@ class DbOperations
     public function emptyCart($userID) {
         $cartID = $this->getCartIDByUserID($userID);
         $stmt = $this->con->prepare("DELETE FROM cart WHERE cartID = $cartID");
+        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID");
         if ($stmt->execute()) {
                 return CART_EMPTY_PASS;
         } else {
@@ -90,16 +91,16 @@ class DbOperations
 
 
     //Place a user order into the 'orders' table
-    public function placeOrder($userID, $orderTotal)
+    public function placeOrder($userID, $orderTotal, $deliveryStatus)
     {
 
         if ($this->isCartActive($userID)) {
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, orderStatus)
-                VALUES (?, ?, ?, 1)");
-            $stmt->bind_param("sss", $cartID, $userID, $orderTotal);
+            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus)
+                VALUES (?, ?, ?, ?, 1)");
+            $stmt->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
 
             $stmt2 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
             $stmt2->bind_param("s", $cartID);

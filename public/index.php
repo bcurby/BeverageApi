@@ -97,14 +97,16 @@ $app->post('/placeorder', function (Request $request, Response $response) {
     $creditCardCVV = $request_data['creditCardCVV'];
     $expiryMonth = $request_data['expiryMonth'];
     $expiryYear = $request_data['expiryYear'];
+    $deliveryStatus = $request_data['deliveryStatus'];
     $orderTotal = $request_data['orderTotal'];
+
 
     if (!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear', 'orderTotal'), $request, $response)) {
         if (!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal)) {
 
             $db = new DbOperations;
 
-            $result = $db->placeOrder($userID, $orderTotal);
+            $result = $db->placeOrder($userID, $orderTotal, $deliveryStatus);
 
             if ($result == ORDER_PLACED) {
 
