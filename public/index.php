@@ -97,14 +97,16 @@ $app->post('/placeorder', function (Request $request, Response $response) {
     $creditCardCVV = $request_data['creditCardCVV'];
     $expiryMonth = $request_data['expiryMonth'];
     $expiryYear = $request_data['expiryYear'];
+    $deliveryStatus = $request_data['deliveryStatus'];
     $orderTotal = $request_data['orderTotal'];
+
 
     if (!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear', 'orderTotal'), $request, $response)) {
         if (!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal)) {
 
             $db = new DbOperations;
 
-            $result = $db->placeOrder($userID, $orderTotal);
+            $result = $db->placeOrder($userID, $orderTotal, $deliveryStatus);
 
             if ($result == ORDER_PLACED) {
 
@@ -434,5 +436,43 @@ $app->get('/getorderitems', function (Request $request, Response $response) {
         ->withStatus(200);
 });
 
+//Creates a new delivery entry
+$app->post('/bookdelivery', function (Request $request, Response $response) {
+    
+    $request_data = $request->getParsedBody();
+
+    $userID = $request_data['userID'];
+    $streetNumber = $request_data['streetNumber'];
+    $streetName = $request_data['streetName'];
+    $postCode = $request_data['postCode'];
+    $cityTown = $request_data['cityTown'];
+
+    $db = new DbOperations;
+
+    $result = $db->bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown);
+    
+    if ($result == DELIVERY_CREATED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Delivery Submitted';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+            
+    } else if ($result == DELIVERY_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Delivery Failed';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(422);
+    }
+});
 
 $app->run();

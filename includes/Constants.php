@@ -29,3 +29,6 @@
     define("CART_EMPTY_PASS", 201);
     define("CART_EMPTY_FAILED", 402);
 
+    define("DELIVERY_CREATED", 201);
+    define("DELIVERY_FAILED", 422);
+    

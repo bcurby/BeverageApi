@@ -29,7 +29,7 @@ class DbOperations
         return USER_EXISTS;
     }
 
-
+    
     //Add item to user cart
     public function addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity)
     {
@@ -74,20 +74,33 @@ class DbOperations
         } else {
                 return CART_EMPTY_FAILED;
             }
+    }
+
+    //Creates a new delivery
+    public function bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown)
+    {
+        $cartID = $this->getCartIDByUserID($userID);
+        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, cartID, streetNumber, streetName, postCode, cityTown) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssss", $userID, $cartID, $streetNumber, $streetName, $postCode, $cityTown);
+        if ($stmt->execute()) {
+            return DELIVERY_CREATED;
+        } else {
+            return DELIVERY_FAILED;
         }
+    }
 
 
     //Place a user order into the 'orders' table
-    public function placeOrder($userID, $orderTotal)
+    public function placeOrder($userID, $orderTotal, $deliveryStatus)
     {
 
         if ($this->isCartActive($userID)) {
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, orderStatus)
-                VALUES (?, ?, ?, 1)");
-            $stmt->bind_param("sss", $cartID, $userID, $orderTotal);
+            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus)
+                VALUES (?, ?, ?, ?, 1)");
+            $stmt->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
 
             $stmt2 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
             $stmt2->bind_param("s", $cartID);
