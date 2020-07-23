@@ -25,3 +25,7 @@
 
     define("CART_ITEMS_FOUND", 200);
     define("CART_ITEMS_FAILED", 402);
+
+    define("CART_EMPTY_PASS", 201);
+    define("CART_EMPTY_FAILED", 402);
+

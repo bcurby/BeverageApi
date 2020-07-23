@@ -65,6 +65,17 @@ class DbOperations
         return ITEM_ALREADY_IN_CART;
     }
 
+    public function emptyCart($userID) {
+        $cartID = $this->getCartIDByUserID($userID);
+        $stmt = $this->con->prepare("DELETE FROM cart WHERE cartID = $cartID");
+        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID");
+        if ($stmt->execute()) {
+                return CART_EMPTY_PASS;
+        } else {
+                return CART_EMPTY_FAILED;
+            }
+        }
+
 
     //Place a user order into the 'orders' table
     public function placeOrder($userID, $orderTotal)
