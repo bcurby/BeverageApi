@@ -365,6 +365,7 @@ function invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiry
     }
 }
 
+
 //CAFE SIDE - get orders for listing orders view
 $app->get('/getorderslist', function (Request $request, Response $response) {
 
@@ -377,6 +378,21 @@ $app->get('/getorderslist', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
+
+
+//CAFE SIDE - get deliveries list
+$app->get('/getdeliverieslist', function (Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $items = $db->getDeliveriesDetails();
+
+    return $response
+        ->withJson($items)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
 
 //Logs an existing staff to viewing orders
 $app->post('/staffValidate', function (Request $request, Response $response) {
@@ -466,6 +482,43 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
         $message = array();
         $message['error'] = false;
         $message['message'] = 'Delivery Failed';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(422);
+    }
+});
+
+
+//Marks order as delivered in the deliveries table
+$app->post('/markdelivered', function (Request $request, Response $response) {
+    
+    $request_data = $request->getParsedBody();
+
+    $userID = $request_data['userID'];
+    $cartID = $request_data['cartID'];
+
+    $db = new DbOperations;
+
+    $result = $db->markOrderDelivered($userID, $cartID);
+    
+    if ($result == ORDER_DELIVERED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order Delivered';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+            
+    } else if ($result == MARK_ORDER_DELIVERED_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Marking order delivered in database failed';
 
         $response->write(json_encode($message));
 
