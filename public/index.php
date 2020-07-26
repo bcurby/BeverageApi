@@ -460,12 +460,10 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
     $userID = $request_data['userID'];
     $streetNumber = $request_data['streetNumber'];
     $streetName = $request_data['streetName'];
-    $postCode = $request_data['postCode'];
-    $cityTown = $request_data['cityTown'];
 
     $db = new DbOperations;
 
-    $result = $db->bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown);
+    $result = $db->bookDelivery($userID, $streetNumber, $streetName);
     
     if ($result == DELIVERY_CREATED) {
         $message = array();

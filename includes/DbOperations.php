@@ -80,11 +80,11 @@ class DbOperations
 
 
     //Creates a new delivery
-    public function bookDelivery($userID, $streetNumber, $streetName, $postCode, $cityTown)
+    public function bookDelivery($userID, $streetNumber, $streetName)
     {
         $cartID = $this->getCartIDByUserID($userID);
-        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, cartID, streetNumber, streetName, postCode, cityTown, deliveryStatus) VALUES (?, ?, ?, ?, ?, ?, 1)");
-        $stmt->bind_param("ssssss", $userID, $cartID, $streetNumber, $streetName, $postCode, $cityTown);
+        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, cartID, streetNumber, streetName, deliveryStatus) VALUES (?, ?, ?, ?, 1)");
+        $stmt->bind_param("ssss", $userID, $cartID, $streetNumber, $streetName);
         if ($stmt->execute()) {
             return DELIVERY_CREATED;
         } else {
@@ -93,12 +93,18 @@ class DbOperations
     }
 
 
-    //CAFE SIDE - Marks the order delivered in the deliveries table
+    //CAFE SIDE - Marks the order delivered in the deliveries table and orders table
     public function markOrderDelivered($userID, $cartID)
     {
-        $stmt = $this->con->prepare("UPDATE deliveries SET deliveryStatus = 0 WHERE userID = ? AND cartID = ?");
-        $stmt->bind_param("ss", $userID, $cartID);
-        if ($stmt->execute()) {
+        //mark order delivered in deliveries table
+        $stmt1 = $this->con->prepare("UPDATE deliveries SET deliveryStatus = 0 WHERE userID = ? AND cartID = ?");
+        $stmt1->bind_param("ss", $userID, $cartID);
+        
+        //mark order delivered in orders table
+        $stmt2 = $this->con->prepare("UPDATE orders SET deliveryStatus = 0 WHERE userID = ? AND cartID = ?");
+        $stmt2->bind_param("ss", $userID, $cartID);
+
+        if ($stmt1->execute() && $stmt2->execute()) {
             return ORDER_DELIVERED;
         } else {
             return MARK_ORDER_DELIVERED_FAILED;
