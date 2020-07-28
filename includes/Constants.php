@@ -32,3 +32,5 @@
     define("DELIVERY_CREATED", 201);
     define("DELIVERY_FAILED", 422);
     
+    define("ORDER_DELIVERED", 201);
+    define("MARK_ORDER_DELIVERED_FAILED", 422);
