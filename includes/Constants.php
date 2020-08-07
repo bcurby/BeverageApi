@@ -34,3 +34,6 @@
     
     define("ORDER_DELIVERED", 201);
     define("MARK_ORDER_DELIVERED_FAILED", 422);
+
+    define("STAFF_DELETE_ITEM_PASSED", 201);
+    define("STAFF_DELETE_ITEM_FAILED", 402);

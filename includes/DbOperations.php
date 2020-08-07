@@ -341,4 +341,14 @@ class DbOperations
         return $results->fetch_all(MYSQLI_ASSOC);
     }
 
+    // CAFE SIDE - Delete menu item
+    public function deleteMenuItem($itemID) {
+        $stmt = $this->con->prepare("DELETE FROM items WHERE id = $itemID");
+        if ($stmt->execute()) {
+            return STAFF_DELETE_ITEM_PASSED;
+        } else {
+            return STAFF_DELETE_ITEM_FAILED;
+        }
+    }
+
 }

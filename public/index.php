@@ -526,4 +526,35 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
     }
 });
 
+//Delete menu item
+$app->post('/deletemenuitem', function (Request $request, Response $response) {
+    
+    $request_data = $request->getParsedBody();
+
+    $itemID = $request_data['itemID'];
+
+    $db = new DbOperations;
+
+    $result = $db->deleteMenuItem($itemID);
+
+    if ($result == STAFF_DELETE_ITEM_PASSED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Item Deleted';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+            
+    } else if ($result == STAFF_DELETE_ITEM_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Item Failed To Delete';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }    
+});
+
 $app->run();
