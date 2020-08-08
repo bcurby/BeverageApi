@@ -93,52 +93,39 @@ $app->post('/placeorder', function (Request $request, Response $response) {
     $request_data = $request->getParsedBody();
 
     $userID = $request_data['userID'];
-    $creditCardNumber = $request_data['creditCardNumber'];
-    $creditCardCVV = $request_data['creditCardCVV'];
-    $expiryMonth = $request_data['expiryMonth'];
-    $expiryYear = $request_data['expiryYear'];
     $deliveryStatus = $request_data['deliveryStatus'];
     $orderTotal = $request_data['orderTotal'];
 
 
-    if (!haveEmptyParameters(array('userID', 'creditCardNumber', 'creditCardCVV', 'expiryMonth', 'expiryYear', 'orderTotal'), $request, $response)) {
-        if (!invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal)) {
+    if (!haveEmptyParameters(array('userID', 'orderTotal'), $request, $response)) {
 
-            $db = new DbOperations;
+        $db = new DbOperations;
 
-            $result = $db->placeOrder($userID, $orderTotal, $deliveryStatus);
+        $result = $db->placeOrder($userID, $orderTotal, $deliveryStatus);
 
-            if ($result == ORDER_PLACED) {
+        if ($result == ORDER_PLACED) {
 
-                $message = array();
-                $message['error'] = false;
-                $message['message'] = 'Your order was successful';
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Your order was successful';
 
-                $response->write(json_encode($message));
+            $response->write(json_encode($message));
 
-                return $response
-                    ->withHeader('Content-type', 'application/json')
-                    ->withStatus(201);
-            } else if ($result == ORDER_FAILED) {
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == ORDER_FAILED) {
 
-                $message = array();
-                $message['error'] = false;
-                $message['message'] = 'There was a problem placing your order';
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'There was a problem placing your order';
 
-                $response->write(json_encode($message));
+            $response->write(json_encode($message));
 
-                return $response
-                    ->withHeader('Content-type', 'application/json')
-                    ->withStatus(422);
-            }
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
         }
-        $error_detail = array();
-        $error_detail['error'] = true;
-        $error_detail['message'] = 'There was a problem placing payment with your credit card';
-        $response->write(json_encode($error_detail));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(422);
     }
     return $response
         ->withHeader('Content-type', 'application/json')
@@ -174,7 +161,6 @@ $app->post('/addtocart', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(200);
-                
         } else if ($result == ITEM_ALREADY_IN_CART) {
 
             $message = array();
@@ -195,7 +181,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
 //empty cart
 $app->post('/emptycart', function (Request $request, Response $response) {
-    
+
     $request_data = $request->getParsedBody();
 
     $userID = $request_data['userID'];
@@ -215,7 +201,6 @@ $app->post('/emptycart', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
-            
     } else if ($result == CART_EMPTY_FAILED) {
 
         $message = array();
@@ -227,8 +212,8 @@ $app->post('/emptycart', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(402);
-    }    
- });
+    }
+});
 
 
 //Get Cart Items for Cart Activity
@@ -343,29 +328,6 @@ function haveEmptyParameters($required_params, $request, $response)
 }
 
 
-//Pay for order with users credit card details
-function invalidPayment($creditCardNumber, $creditCardCVV, $expiryMonth, $expiryYear, $orderTotal)
-{
-
-    $credit_details = array();
-    array_push($credit_details, $creditCardNumber);
-    array_push($credit_details, $creditCardCVV);
-    array_push($credit_details, $expiryMonth);
-    array_push($credit_details, $expiryYear);
-    array_push($credit_details, $orderTotal);
-
-
-    if (in_array(0, $credit_details)) {
-        //Default value of 0 for any of the credit card details means the payment would not proceed
-        return true;
-    } else {
-        //Default value of 0 is not present for any of the credit card details
-        //Payment proceeds and false is returned
-        return false;
-    }
-}
-
-
 //CAFE SIDE - get orders for listing orders view
 $app->get('/getorderslist', function (Request $request, Response $response) {
 
@@ -428,7 +390,6 @@ $app->post('/staffValidate', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(200);
-
         }
     }
 
@@ -454,7 +415,7 @@ $app->get('/getorderitems', function (Request $request, Response $response) {
 
 //Creates a new delivery entry
 $app->post('/bookdelivery', function (Request $request, Response $response) {
-    
+
     $request_data = $request->getParsedBody();
 
     $userID = $request_data['userID'];
@@ -464,7 +425,7 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
     $db = new DbOperations;
 
     $result = $db->bookDelivery($userID, $streetNumber, $streetName);
-    
+
     if ($result == DELIVERY_CREATED) {
         $message = array();
         $message['error'] = false;
@@ -475,7 +436,6 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
-            
     } else if ($result == DELIVERY_FAILED) {
         $message = array();
         $message['error'] = false;
@@ -492,7 +452,7 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
 
 //Marks order as delivered in the deliveries table
 $app->post('/markdelivered', function (Request $request, Response $response) {
-    
+
     $request_data = $request->getParsedBody();
 
     $userID = $request_data['userID'];
@@ -501,7 +461,7 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
     $db = new DbOperations;
 
     $result = $db->markOrderDelivered($userID, $cartID);
-    
+
     if ($result == ORDER_DELIVERED) {
         $message = array();
         $message['error'] = false;
@@ -512,7 +472,6 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
-            
     } else if ($result == MARK_ORDER_DELIVERED_FAILED) {
         $message = array();
         $message['error'] = false;
@@ -528,7 +487,7 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
 
 //Delete menu item
 $app->post('/deletemenuitem', function (Request $request, Response $response) {
-    
+
     $request_data = $request->getParsedBody();
 
     $itemID = $request_data['itemID'];
@@ -545,7 +504,6 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
-            
     } else if ($result == STAFF_DELETE_ITEM_FAILED) {
         $message = array();
         $message['error'] = false;
@@ -554,7 +512,7 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(402);
-    }    
+    }
 });
 
 $app->run();
