@@ -2,6 +2,9 @@
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\ServiceAccount;
+
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -526,4 +529,42 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
     }
 });
 
-$app->run();
+$app->post("/notificationtoken", function(Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+    $token = $request_data['token'];
+    $userID = $request_data['userID'];
+
+    if (!haveEmptyParameters('token', $request, $response)) {
+
+        $db = new DbOperations;
+        $result = $db->notificationToken($token, $userID);
+
+        if ($result == TOKEN_RECEIVED) {
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(501);
+
+
+        } else if ($result == TOKEN_FAILED) {
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(502);
+        }
+    }
+});
+
+try {
+    $app->run();
+} catch (Throwable $e) {
+}
+
+//$serviceAccount = ServiceAccount::fromJsonFile(__DIR__ . '/secret/php-firebase-7f39e-c654ccd32aba.json');
+//$firebase = (new Factory)
+//    ->withServiceAccount($serviceAccount)
+//    ->withDatabaseUri('https://my-project.firebaseio.com')
+//    ->create();
+//$database = $firebase->getDatabase();
+
+

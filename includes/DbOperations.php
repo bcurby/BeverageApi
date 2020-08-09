@@ -341,4 +341,19 @@ class DbOperations
         return $results->fetch_all(MYSQLI_ASSOC);
     }
 
+    public function notificationToken($token, $userID)
+    {
+        $stmt = $this->con->prepare("UPDATE users SET token = $token FROM users WHERE userID = $userID" );
+        $stmt->bind_param("s", $userID);
+
+        if ($stmt->execute()){
+
+            return TOKEN_RECEIVED;
+        }
+        return TOKEN_FAILED;
+    }
+
+
+
+
 }
