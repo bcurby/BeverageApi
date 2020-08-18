@@ -31,7 +31,7 @@ class DbOperations
 
     
     //Add item to user cart
-    public function addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar)
+    public function addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated)
     {
 
         //does this user have an activer cart
@@ -42,9 +42,10 @@ class DbOperations
 
             // check if the cartItem exists in the cart
             if (!$this->isCartItemExist($cartID, $itemID)) {
-                $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemMilk, itemSugar) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar);
+                $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity,
+                 itemMilk, itemSugar, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssssssssssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated);
                 if ($stmt->execute()) {
                     return ADDED_TO_CART;
                 }
@@ -55,9 +56,10 @@ class DbOperations
             $stmt->bind_param("s", $userID);
             $stmt->execute();
             $cartID = $this->getCartIDByUserID($userID);
-            $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemMilk, itemSugar) 
-                    VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar);
+            $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity,
+            itemMilk, itemSugar, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssssssssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated);
             if ($stmt->execute()) {
                 return ADDED_TO_CART;
             }
@@ -174,7 +176,7 @@ class DbOperations
     public function getItems()
     {
         //AS are present because the Android app expects those names as opposed to those used in the database
-        $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar FROM items");
+        $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, extras, frappe, heated FROM items");
 
         return $results->fetch_all(MYSQLI_ASSOC);
     }
@@ -269,10 +271,10 @@ class DbOperations
     //CAFE SIDE - Getting order items for each order as they are clicked
     public function getOrderItems($cartID)
     {
-            $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity, extra FROM cartitem WHERE cartID = ?");
+            $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity, itemMilk, itemSugar FROM cartitem WHERE cartID = ?");
             $stmt->bind_param("s", $cartID);
             $stmt->execute();
-            $stmt->bind_result($itemID,$itemTitle, $itemQuantity, $extra);
+            $stmt->bind_result($itemID,$itemTitle, $itemQuantity, $itemMilk, $itemSugar);
 
             $cart = array();
 
@@ -282,7 +284,8 @@ class DbOperations
                 $temp['itemID'] = $itemID;
                 $temp['itemTitle'] = $itemTitle;
                 $temp['quantity'] = $itemQuantity;
-                $temp['extra'] = $extra;
+                $temp['itemMilk'] = $itemMilk;
+                $temp['itemSugar'] = $itemSugar;
 
                 array_push($cart, $temp);
             }

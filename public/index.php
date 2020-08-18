@@ -147,10 +147,16 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         $itemQuantity = $request_data['itemQuantity'];
         $itemMilk = $request_data['itemMilk'];
         $itemSugar = $request_data['itemSugar'];
+        $itemVanilla = $request_data['itemVanilla'];
+        $itemCaramel = $request_data['itemCaramel'];
+        $itemChocolate = $request_data['itemChocolate'];
+        $itemWhippedCream = $request_data['itemWhippedCream'];
+        $itemFrappe = $request_data['itemFrappe'];
+        $itemHeated = $request_data['itemHeated'];
 
         $db = new DbOperations;
 
-        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar);
+        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated);
 
         if ($result == ADDED_TO_CART) {
 
