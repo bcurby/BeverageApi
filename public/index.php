@@ -515,4 +515,24 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
     }
 });
 
+
+//Get Locked List
+$app->get('/getlockeditems', function (Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $items = $db->getLockedItems();
+
+    return $response
+        ->withJson($items)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+//Create Locked Entry
+
+
+//Delete Locked Entry
+
+
 $app->run();
