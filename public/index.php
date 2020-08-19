@@ -515,4 +515,44 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
     }
 });
 
+//Query queue
+$app->post('/addtoqueue', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $staffID = $request_data['staffID'];
+    $orderID = $request_data['orderID'];
+    $cartID = $request_data['cartID'];
+
+    $db = new DbOperations;
+
+    $result = $db->addToQueue($staffID, $orderID, $cartID);
+
+    if ($result == ORDER_ADDED_TO_QUEUE) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order Added To Queue';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == ORDER_ADDED_TO_QUEUE_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order Failed To Add To Queue';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    } else if ($result == ORDER_ALREADY_EXISTS_IN_QUEUE) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order Already In Queue';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(403);
+    }
+});
+
 $app->run();

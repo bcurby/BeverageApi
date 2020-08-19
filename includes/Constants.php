@@ -37,3 +37,7 @@
 
     define("STAFF_DELETE_ITEM_PASSED", 201);
     define("STAFF_DELETE_ITEM_FAILED", 402);
+
+    define("ORDER_ADDED_TO_QUEUE", 201);
+    define("ORDER_ADDED_TO_QUEUE_FAILED", 402);
+    define("ORDER_ALREADY_EXISTS_IN_QUEUE", 403);
