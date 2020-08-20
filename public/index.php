@@ -515,7 +515,7 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
     }
 });
 
-//Query queue
+//Add to queue
 $app->post('/addtoqueue', function (Request $request, Response $response) {
 
     $request_data = $request->getParsedBody();
@@ -554,5 +554,70 @@ $app->post('/addtoqueue', function (Request $request, Response $response) {
             ->withStatus(403);
     }
 });
+
+//Make queued order available
+$app->post('/makeorderavailable', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $staffID = $request_data['staffID'];
+    $orderID = $request_data['orderID'];
+    $cartID = $request_data['cartID'];
+
+    $db = new DbOperations;
+
+    $result = $db->makeOrderAvailable($staffID, $orderID, $cartID);
+
+    if ($result == ORDER_AVAILABLE) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Staff member removed from order';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == ORDER_AVAILABLE_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Staff member failed to be removed from order';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+});
+
+//Make queued order available
+$app->post('/assignstafftoorder', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $staffID = $request_data['staffID'];
+    $orderID = $request_data['orderID'];
+    $cartID = $request_data['cartID'];
+
+    $db = new DbOperations;
+
+    $result = $db->assignStaffToOrder($staffID, $orderID, $cartID);
+
+    if ($result == STAFF_ASSIGNED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Staff member assigned to order';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == STAFF_ASSIGNED_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Staff member failed to be assigned to order';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+});
+
 
 $app->run();

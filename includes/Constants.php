@@ -41,3 +41,9 @@
     define("ORDER_ADDED_TO_QUEUE", 201);
     define("ORDER_ADDED_TO_QUEUE_FAILED", 402);
     define("ORDER_ALREADY_EXISTS_IN_QUEUE", 403);
+
+    define("ORDER_AVAILABLE", 201);
+    define("ORDER_AVAILABLE_FAILED", 402);
+
+    define("STAFF_ASSIGNED", 201);
+    define("STAFF_ASSIGNED_FAILED", 401);
