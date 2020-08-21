@@ -17,9 +17,11 @@ $app = new \Slim\App([
 //Get Menu Items for Browse Menu
 $app->get('/getitems', function (Request $request, Response $response) {
 
+    $itemType = $_GET['itemType'];
+
     $db = new DbOperations;
 
-    $items = $db->getItems();
+    $items = $db->getItems($itemType);
 
     return $response
         ->withJson($items)

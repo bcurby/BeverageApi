@@ -289,14 +289,36 @@ class DbOperations
 
 
     // Get Menu Items
-    public function getItems()
+    public function getItems($itemType)
     {
         //AS are present because the Android app expects those names as opposed to those used in the database
-        $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated FROM items");
+        $stmt = $this->con->prepare("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType FROM items WHERE itemType = ?");
+        $stmt->bind_param("s", $itemType);
+        $stmt->execute();
+        $stmt->bind_result($itemID, $itemTitle, $itemDescription, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemExtras, $itemFrappe, $itemHeated, $itemType);
 
-        return $results->fetch_all(MYSQLI_ASSOC);
-    }
+        $menu = array();
 
+        while ($stmt->fetch()) {
+                $temp = array();
+
+                $temp['id'] = $itemID;
+                $temp['name'] = $itemTitle;
+                $temp['description'] = $itemDescription;
+                $temp['price'] = $itemPrice;
+                $temp['milk'] = $itemMilk;
+                $temp['sugar'] = $itemSugar;
+                $temp['decaf'] = $itemDecaf;
+                $temp['extras'] = $itemExtras;
+                $temp['frappe'] = $itemFrappe;
+                $temp['heated'] = $itemHeated;
+                $temp['itemType'] = $itemType;
+
+                array_push($menu, $temp);
+            }
+            return $menu;
+        }
+        
 
     // Get Cart Items
     public function getCartItems($userID)
