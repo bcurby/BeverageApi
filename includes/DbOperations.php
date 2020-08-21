@@ -45,7 +45,8 @@ class DbOperations
         $itemChocolate,
         $itemWhippedCream,
         $itemFrappe,
-        $itemHeated
+        $itemHeated,
+        $itemType
     ) {
 
         //does this user have an activer cart
@@ -66,13 +67,14 @@ class DbOperations
                 $itemChocolate,
                 $itemWhippedCream,
                 $itemFrappe,
-                $itemHeated
+                $itemHeated,
+                $itemType
             )) {
                 $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity,
-                 itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                 itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemType) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param(
-                    "ssssssssssssss",
+                    "sssssssssssssss",
                     $cartID,
                     $itemID,
                     $itemTitle,
@@ -86,13 +88,14 @@ class DbOperations
                     $itemChocolate,
                     $itemWhippedCream,
                     $itemFrappe,
-                    $itemHeated
+                    $itemHeated,
+                    $itemType
                 );
                 if ($stmt->execute()) {
                     return ADDED_TO_CART;
                 }
             }
-            //select qty where cartid = and item etc
+            //When item exists already in the user cart return item quantity
             $cartItemQuantity = $this->getCartItemQuantity(
                 $cartID,
                 $itemID,
@@ -104,13 +107,15 @@ class DbOperations
                 $itemChocolate,
                 $itemWhippedCream,
                 $itemFrappe,
-                $itemHeated);
+                $itemHeated,
+                $itemType
+            );
 
             $newQuantity = $itemQuantity + $cartItemQuantity;
             $stmt = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemMilk = ?
             AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
-            AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?");
-            $stmt->bind_param("ssssssssssss", $newQuantity, $cartID, $itemID, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated);
+            AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemType = ?");
+            $stmt->bind_param("sssssssssssss", $newQuantity, $cartID, $itemID, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemType);
             $stmt->execute();
             return ADDED_TO_CART;
         } else {
@@ -119,10 +124,10 @@ class DbOperations
             $stmt->execute();
             $cartID = $this->getCartIDByUserID($userID);
             $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity,
-            itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemType) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param(
-                "ssssssssssssss",
+                "sssssssssssssss",
                 $cartID,
                 $itemID,
                 $itemTitle,
@@ -136,7 +141,8 @@ class DbOperations
                 $itemChocolate,
                 $itemWhippedCream,
                 $itemFrappe,
-                $itemHeated
+                $itemHeated,
+                $itemType
             );
             if ($stmt->execute()) {
                 return ADDED_TO_CART;
@@ -158,12 +164,13 @@ class DbOperations
     $itemChocolate,
     $itemWhippedCream,
     $itemFrappe,
-    $itemHeated) {
+    $itemHeated,
+    $itemType) {
         $stmt = $this->con->prepare("SELECT itemQuantity FROM cartItem WHERE cartID = ? AND itemID = ? AND itemMilk = ?
          AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
-         AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?");
+         AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemType = ?");
             $stmt->bind_param(
-                "sssssssssss",
+                "ssssssssssss",
                 $cartID,
                 $itemID,
                 $itemMilk,
@@ -174,7 +181,8 @@ class DbOperations
                 $itemChocolate,
                 $itemWhippedCream,
                 $itemFrappe,
-                $itemHeated
+                $itemHeated,
+                $itemType
             );
             $stmt->execute();
             $stmt->bind_result($cartItemQuantity);
