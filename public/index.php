@@ -619,5 +619,39 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
     }
 });
 
-
+//Add completed order to completedOrders table
+$app->post('/addcompletedorder'), function (Request $request, Response $response) {
+	
+	$request_data = $request->getParsedBody();
+	
+	$orderID = $request_data['orderID'];
+	$cartID = $request_data['cartID'];
+	$userID = $request_data['userID'];
+	$orderTotal = $request_data['orderTotal'];
+	$deliveryStatus = $request_data['deliveryStatus'];
+	$orderStatus = $request_data['orderStatus'];
+	$assignedStaff = $request_data['assignedStaff'];
+	
+	$db = new DbOperations;
+	
+	$result = $db->addCompletedOrder($orderID, $cartID, $userID, $orderTotal, $deliveryStatus, $orderStatus, $assignedStaff);
+	
+	if ($result == ORDER_RECORDED) {
+		$message = array();
+		$message['error'] = false;
+		$message['message'] = 'Order added to completedOrders';
+		$response->write(json_encode($message));
+		return $response
+			->withHeader('Content-type', 'application/json')
+			->withStatus(201);
+	} else if ($result == ORDER_RECORDED_FAILED) {
+		$message = array();
+		$message['error'] = false;
+		$message['message'] = 'Order wasnt added to completedOrders';
+		$response->write(json_encode($message));
+		return $response
+			->withHeader('Content-type', 'application/json')
+			->withStatus(402);
+	}
+});
 $app->run();

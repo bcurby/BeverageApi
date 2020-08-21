@@ -397,4 +397,13 @@ class DbOperations
                 return STAFF_ASSIGNED_FAILED;
             }
         }
+		
+	// CAFE SIDE - Add Order to completedOrders Table
+	public function addCompletedOrder($orderID, $cartID, $userID, $orderTotal, $deliveryStatus, $orderStatus, $assignedStaff) {
+		$stmt = $this->con->prepare("INSERT INTO completedorders SELECT * FROM orders WHERE orderID = $orderID");
+		
+		if ($stmt->execute()){
+			return ORDER_RECORDED;
+		}
+		return ORDER_RECORDED_FAILED;
 }
