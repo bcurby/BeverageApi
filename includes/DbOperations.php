@@ -120,8 +120,8 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus)
-                VALUES (?, ?, ?, ?, 1)");
+            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
+                VALUES (?, ?, ?, ?, 1, 0)");
             $stmt->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
 
             $stmt2 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
@@ -327,7 +327,7 @@ class DbOperations
     // CAFE SIDE - Get active order list
     public function getOrdersDetails()
     {
-        $results = $this->con->query("SELECT orderID, cartID FROM orders WHERE orderStatus = 1");
+        $results = $this->con->query("SELECT orderID, cartID, assignedStaff FROM orders WHERE orderStatus = 1");
 
         return $results->fetch_all(MYSQLI_ASSOC);
     }
@@ -351,4 +351,50 @@ class DbOperations
         }
     }
 
+    // CAFE SIDE - add order to queue and bind staff member to that order
+    public function addToQueue($staffID, $orderID, $cartID) {
+        if (!$this->doesOrderExistInQueue($orderID)) {
+            $stmt = $this->con->prepare("INSERT INTO staffqueue (staffID, orderID, cartID) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $staffID, $orderID, $cartID);
+            if ($stmt->execute()) {
+                $stmt = $this->con->prepare("UPDATE orders SET assignedStaff = $staffID WHERE orderID = $orderID");
+                $stmt->execute();
+                return ORDER_ADDED_TO_QUEUE;
+            } else {
+                return ORDER_ADDED_TO_QUEUE_FAILED;
+            }
+        } else {
+            return ORDER_ALREADY_EXISTS_IN_QUEUE;
+        }
+    }
+
+    //CAFE SIDE - Check for staff record exists in database
+    private function doesOrderExistInQueue($orderID) {
+        $stmt = $this->con->prepare("SELECT orderID from staffqueue WHERE orderID = $orderID");
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
+
+    // CAFE SIDE - Remove staff member from order
+    public function makeOrderAvailable($staffID, $orderID, $cartID) {
+        $stmt1 = $this->con->prepare("UPDATE orders SET assignedStaff = 1 WHERE assignedStaff = $staffID AND orderID = $orderID AND cartID = $cartID");
+        $stmt2 = $this->con->prepare("UPDATE staffqueue SET staffID = 1 WHERE staffID = $staffID AND orderID = $orderID AND cartID = $cartID");
+        if ($stmt1->execute() && $stmt2->execute()) {
+            return ORDER_AVAILABLE;
+        } else {
+            return ORDER_AVAILABLE_FAILED;
+        }
+    }
+
+        // CAFE SIDE - Assigns staff member to order
+        public function assignStaffToOrder($staffID, $orderID, $cartID) {
+            $stmt1 = $this->con->prepare("UPDATE orders SET assignedStaff = $staffID WHERE assignedStaff = 1 AND orderID = $orderID AND cartID = $cartID");
+            $stmt2 = $this->con->prepare("UPDATE staffqueue SET staffID = $staffID WHERE staffID = 1 AND orderID = $orderID AND cartID = $cartID");
+            if ($stmt1->execute() && $stmt2->execute()) {
+                return STAFF_ASSIGNED;
+            } else {
+                return STAFF_ASSIGNED_FAILED;
+            }
+        }
 }
