@@ -17,7 +17,7 @@
     define('STAFF_NOT_FOUND', 200);
 
     define('ADDED_TO_CART', 201);
-    define('ITEM_ALREADY_IN_CART', 403);
+    define('PROBLEM_ADDING_TO_CART', 403);
     define('CART_EMPTY', 303);
 
     define('ORDER_PLACED', 201);
