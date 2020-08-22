@@ -654,11 +654,12 @@ $app->post('/deleteorder', function (Request $request, Response $response) {
 
     $request_data = $request->getParsedBody();
 
-    $itemID = $request_data['orderID'];
+    $orderID = $request_data['orderID'];
+	$cartID = $request_data['cartID'];
 
     $db = new DbOperations;
 
-    $result = $db->deleteOrder($orderID);
+    $result = $db->deleteOrder($orderID, $cartID);
 
     if ($result == ORDER_DELETED) {
         $message = array();
@@ -684,7 +685,7 @@ $app->post('/deletestaffqueue', function (Request $request, Response $response) 
 
     $request_data = $request->getParsedBody();
 
-    $itemID = $request_data['orderID'];
+    $orderID = $request_data['orderID'];
 
     $db = new DbOperations;
 
@@ -702,6 +703,38 @@ $app->post('/deletestaffqueue', function (Request $request, Response $response) 
         $message = array();
         $message['error'] = false;
         $message['message'] = 'Order failed to delete from staff queue';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+});
+
+//Update cartitem status when checked off
+$app->post('/updatecartitemstatus', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $cartID = $request_data['cartID'];
+	$itemID = $request_data['itemID'];
+	$itemStatus = $request_data['itemStatus'];
+
+    $db = new DbOperations;
+
+    $result = $db->updateCartItemStatus($cartID, $itemID, $itemStatus);
+
+    if ($result == UPDATED_ITEM_STATUS) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Cart item Status updated';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == UPDATED_ITEM_STATUS_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Cart item Status updated failed';
         $response->write(json_encode($message));
         return $response
             ->withHeader('Content-type', 'application/json')

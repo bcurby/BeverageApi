@@ -42,8 +42,8 @@ class DbOperations
 
             // check if the cartItem exists in the cart
             if (!$this->isCartItemExist($cartID, $itemID)) {
-                $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity) 
-                VALUES (?, ?, ?, ?, ?)");
+                $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemStatus) 
+                VALUES (?, ?, ?, ?, ?, 0)");
                 $stmt->bind_param("sssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
                 if ($stmt->execute()) {
                     return ADDED_TO_CART;
@@ -409,10 +409,11 @@ class DbOperations
 	}
 	
 	// CAFE SIDE - Delete Order from Orders
-	public function deleteOrder($orderID) {
+	public function deleteOrder($orderID, $cartID) {
 		$stmt = $this->con->prepare("DELETE FROM orders WHERE orderID = $orderID");
+		$stmt1 = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID");
 		
-		if ($stmt->execute()){
+		if ($stmt->execute() && $stmt1->execute()){
 			return ORDER_DELETED;
 		}
 		return ORDER_DELETED_FAILED;
@@ -426,5 +427,15 @@ class DbOperations
 			return STAFF_QUEUE_DELETED;
 		}
 		return STAFF_QUEUE_DELETED_FAILED;
+	}
+	
+	// CAFE SIDE - Update Cart Item Status
+	public function updateCartItemStatus($cartID, $itemID) {
+		$stmt = $this->con->prepare("UPDATE cartitem SET itemStatus = $itemStatus WHERE cartID = $cartID AND itemID = $itemID");
+		
+		if ($stmt->execute()){
+			return UPDATED_ITEM_STATUS;
+		}
+		return UPDATED_ITEM_STATUS_FAILED;
 	}
 }
