@@ -46,6 +46,7 @@ class DbOperations
         $itemWhippedCream,
         $itemFrappe,
         $itemHeated,
+        $itemComment,
         $itemType
     ) {
 
@@ -68,13 +69,14 @@ class DbOperations
                 $itemWhippedCream,
                 $itemFrappe,
                 $itemHeated,
+                $itemComment,
                 $itemType
             )) {
                 $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity,
-                 itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemType) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                 itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param(
-                    "sssssssssssssss",
+                    "ssssssssssssssss",
                     $cartID,
                     $itemID,
                     $itemTitle,
@@ -89,6 +91,7 @@ class DbOperations
                     $itemWhippedCream,
                     $itemFrappe,
                     $itemHeated,
+                    $itemComment,
                     $itemType
                 );
                 if ($stmt->execute()) {
@@ -108,14 +111,16 @@ class DbOperations
                 $itemWhippedCream,
                 $itemFrappe,
                 $itemHeated,
+                $itemComment,
                 $itemType
             );
 
             $newQuantity = $itemQuantity + $cartItemQuantity;
             $stmt = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemMilk = ?
             AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
-            AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemType = ?");
-            $stmt->bind_param("sssssssssssss", $newQuantity, $cartID, $itemID, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemType);
+            AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemComment = ? AND itemType = ?");
+            $stmt->bind_param("ssssssssssssss", $newQuantity, $cartID, $itemID, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+            $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
             $stmt->execute();
             return ADDED_TO_CART;
         } else {
@@ -124,10 +129,10 @@ class DbOperations
             $stmt->execute();
             $cartID = $this->getCartIDByUserID($userID);
             $stmt = $this->con->prepare("INSERT INTO cartItem (cartID, itemID, itemTitle, itemPrice, itemQuantity,
-            itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemType) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param(
-                "sssssssssssssss",
+                "ssssssssssssssss",
                 $cartID,
                 $itemID,
                 $itemTitle,
@@ -142,6 +147,7 @@ class DbOperations
                 $itemWhippedCream,
                 $itemFrappe,
                 $itemHeated,
+                $itemComment,
                 $itemType
             );
             if ($stmt->execute()) {
@@ -165,12 +171,13 @@ class DbOperations
     $itemWhippedCream,
     $itemFrappe,
     $itemHeated,
+    $itemComment,
     $itemType) {
         $stmt = $this->con->prepare("SELECT itemQuantity FROM cartItem WHERE cartID = ? AND itemID = ? AND itemMilk = ?
          AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
-         AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemType = ?");
+         AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemComment = ? AND itemType = ?");
             $stmt->bind_param(
-                "ssssssssssss",
+                "sssssssssssss",
                 $cartID,
                 $itemID,
                 $itemMilk,
@@ -182,6 +189,7 @@ class DbOperations
                 $itemWhippedCream,
                 $itemFrappe,
                 $itemHeated,
+                $itemComment,
                 $itemType
             );
             $stmt->execute();
@@ -337,11 +345,11 @@ class DbOperations
             $cartID = $this->getCartIDByUserID($userID);
 
             $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemMilk, itemSugar, 
-            itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemType FROM cartitem WHERE cartID = ?");
+            itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType FROM cartitem WHERE cartID = ?");
             $stmt->bind_param("s", $cartID);
             $stmt->execute();
             $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
-        $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemType);
+        $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
 
             $cart = array();
 
@@ -360,6 +368,7 @@ class DbOperations
                 $temp['itemWhippedCream'] = $itemWhippedCream;
                 $temp['itemFrappe'] = $itemFrappe;
                 $temp['itemHeated'] = $itemHeated;
+                $temp['itemComment'] = $itemComment;
                 $temp['itemType'] = $itemType;
 
                 array_push($cart, $temp);
