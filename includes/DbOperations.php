@@ -336,10 +336,12 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity FROM cartitem WHERE cartID = ?");
+            $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemMilk, itemSugar, 
+            itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemType FROM cartitem WHERE cartID = ?");
             $stmt->bind_param("s", $cartID);
             $stmt->execute();
-            $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity);
+            $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+        $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemType);
 
             $cart = array();
 
@@ -349,6 +351,16 @@ class DbOperations
                 $temp['name'] = $itemTitle;
                 $temp['price'] = $itemPrice;
                 $temp['quantity'] = $itemQuantity;
+                $temp['itemMilk'] = $itemMilk;
+                $temp['itemSugar'] = $itemSugar;
+                $temp['itemDecaf'] = $itemDecaf;
+                $temp['itemVanilla'] = $itemVanilla;
+                $temp['itemCaramel'] = $itemCaramel;
+                $temp['itemChocolate'] = $itemChocolate;
+                $temp['itemWhippedCream'] = $itemWhippedCream;
+                $temp['itemFrappe'] = $itemFrappe;
+                $temp['itemHeated'] = $itemHeated;
+                $temp['itemType'] = $itemType;
 
                 array_push($cart, $temp);
             }
