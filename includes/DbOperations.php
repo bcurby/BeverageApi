@@ -341,10 +341,10 @@ class DbOperations
         return $results->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function notificationToken($token, $userID)
+    public function notificationToken($token, $email)
     {
-        $stmt = $this->con->prepare("UPDATE users SET token = $token FROM users WHERE userID = $userID" );
-        $stmt->bind_param("s", $userID);
+        $stmt = $this->con->prepare("UPDATE users SET token = ? WHERE email = ? ");
+        $stmt->bind_param("ss",$token ,  $email);
 
         if ($stmt->execute()){
 
@@ -352,6 +352,48 @@ class DbOperations
         }
         return TOKEN_FAILED;
     }
+
+    function sendPushNotification($to, $data)
+    {
+
+        $apiKey = "AAAAhwEX3OM:APA91bF-j4JnxA7LoviQ_3gtk2zyNNrD94i3XgIGDbpeJegme-UJf8qW2lr6-o8e3EapmXCPdgYK4u-feWK-DlvtQkjIh0tg5XXIr9fryj5hd0GbXtNPq0Ho_IFHu6oLlLrtCSIDuVuI";
+        $fields = array('to' => $to, "notification" => $data);
+
+        $headers = array('Authorization: key=' . $apiKey, 'Content-Type:application/json');
+
+        $url = 'https://fcm.googleapis.com/fcm/send';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLINFO_REDIRECT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        curl_setopt($ch, CURLOPT_PROXY_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json - encode($fields));
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return json_decoded($result, true);
+
+    }
+
+    function getToken($userID)
+    {
+        $stmt = $this->con->prepare("SELECT token FROM users WHERE id = ?");
+        $stmt->bind_param("s",$userID);
+        $stmt->execute();
+        $stmt->bind_result($token);
+        $stmt->fetch();
+
+
+        return $token;
+    }
+
+
+
+
+
+
 
 
 

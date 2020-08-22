@@ -22,13 +22,14 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.3",
         "ext-json": "*",
         "monolog/monolog": "^1.24",
         "php-di/php-di": "^6.0",
         "slim/psr7": "^0.5",
         "slim/slim": "3.*",
-        "kreait/firebase-php": "^5.0"
+        "kreait/firebase-php": "^5.0",
+      "ext-curl": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5"

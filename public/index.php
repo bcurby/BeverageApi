@@ -532,28 +532,91 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
 $app->post("/notificationtoken", function(Request $request, Response $response) {
 
     $request_data = $request->getParsedBody();
+
     $token = $request_data['token'];
-    $userID = $request_data['userID'];
+    $email = $request_data['email'];
 
     if (!haveEmptyParameters('token', $request, $response)) {
 
         $db = new DbOperations;
-        $result = $db->notificationToken($token, $userID);
+
+        $result = $db->notificationToken($token, $email);
 
         if ($result == TOKEN_RECEIVED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'token received';
+            $response->write(json_encode($message));
+
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(501);
 
 
-        } else if ($result == TOKEN_FAILED) {
+        } else {
+            if ($result == TOKEN_FAILED) {
 
-            return $response
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(502);
+                $message = array();
+                $message['error'] = false;
+                $message['message'] = 'token failed';
+
+                $response->write(json_encode($message));
+
+                return $response
+                    ->withHeader('Content-type', 'application/json')
+                    ->withStatus(502);
+            }
         }
     }
+
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(502);
+
 });
+
+$app->post('/sendNotificationComplete', function(Request $request, Response $response){
+
+    $request_data = $request->getParsedBody();
+    $userID = $request_data['userID'];
+
+    $db = new DbOperations;
+    $to = $db->getToken($userID);
+
+    $data = array(
+        'body' => "Your Order Is Ready for Collection"
+
+    );
+
+    $result = $db-> sendPushNotification($to, $data);
+
+    if ($result == true) {
+
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'message sent';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(601);
+
+    }
+    else {
+        if ($result == false) {
+
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'message failed';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(602);
+
+        }
+    }
+
+});
+
 
 try {
     $app->run();
