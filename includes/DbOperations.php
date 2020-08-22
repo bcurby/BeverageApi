@@ -407,4 +407,24 @@ class DbOperations
 		}
 		return ORDER_RECORDED_FAILED;
 	}
+	
+	// CAFE SIDE - Delete Order from Orders
+	public function deleteOrder($orderID) {
+		$stmt = $this->con->prepare("DELETE FROM orders WHERE orderID = $orderID");
+		
+		if ($stmt->execute()){
+			return ORDER_DELETED;
+		}
+		return ORDER_DELETED_FAILED;
+	}
+	
+	// CAFE SIDE - Delete Order from Staff Queue
+	public function deleteStaffQueue($orderID) {
+		$stmt = $this->con->prepare("DELETE FROM staffqueue WHERE orderID = $orderID");
+		
+		if ($stmt->execute()){
+			return STAFF_QUEUE_DELETED;
+		}
+		return STAFF_QUEUE_DELETED_FAILED;
+	}
 }

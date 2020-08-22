@@ -50,3 +50,9 @@
 	
 	define("ORDER_RECORDED", 201);
 	define("ORDER_RECORDED_FAILED", 402);
+
+	define("ORDER_DELETED", 201);
+	define("ORDER_DELETED_FAILED", 402);
+	
+	define("STAFF_QUEUE_DELETED", 201);
+	define("STAFF_QUEUE_DELETED_FAILED", 402);

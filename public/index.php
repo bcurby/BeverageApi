@@ -648,4 +648,64 @@ $app->post('/addcompletedorder', function (Request $request, Response $response)
 			->withStatus(402);
 	}
 });
+
+//Delete from order table
+$app->post('/deleteorder', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $itemID = $request_data['orderID'];
+
+    $db = new DbOperations;
+
+    $result = $db->deleteOrder($orderID);
+
+    if ($result == ORDER_DELETED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order has been deleted';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == ORDER_DELETED_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order failed to delete';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+});
+
+//Delete from staffQueue table
+$app->post('/deletestaffqueue', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $itemID = $request_data['orderID'];
+
+    $db = new DbOperations;
+
+    $result = $db->deleteStaffQueue($orderID);
+
+    if ($result == STAFF_QUEUE_DELETED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order has been deleted from staff queue';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == STAFF_QUEUE_DELETED_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order failed to delete from staff queue';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+});
 $app->run();
