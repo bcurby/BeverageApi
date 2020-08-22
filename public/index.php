@@ -620,21 +620,15 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
 });
 
 //Add completed order to completedOrders table
-$app->post('/addcompletedorder'), function (Request $request, Response $response) {
+$app->post('/addcompletedorder', function (Request $request, Response $response) {
 	
 	$request_data = $request->getParsedBody();
 	
 	$orderID = $request_data['orderID'];
-	$cartID = $request_data['cartID'];
-	$userID = $request_data['userID'];
-	$orderTotal = $request_data['orderTotal'];
-	$deliveryStatus = $request_data['deliveryStatus'];
-	$orderStatus = $request_data['orderStatus'];
-	$assignedStaff = $request_data['assignedStaff'];
 	
 	$db = new DbOperations;
 	
-	$result = $db->addCompletedOrder($orderID, $cartID, $userID, $orderTotal, $deliveryStatus, $orderStatus, $assignedStaff);
+	$result = $db->addCompletedOrder($orderID);
 	
 	if ($result == ORDER_RECORDED) {
 		$message = array();
