@@ -17,9 +17,11 @@ $app = new \Slim\App([
 //Get Menu Items for Browse Menu
 $app->get('/getitems', function (Request $request, Response $response) {
 
+    $itemType = $_GET['itemType'];
+
     $db = new DbOperations;
 
-    $items = $db->getItems();
+    $items = $db->getItems($itemType);
 
     return $response
         ->withJson($items)
@@ -145,10 +147,22 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         $itemTitle = $request_data['itemTitle'];
         $itemPrice = $request_data['itemPrice'];
         $itemQuantity = $request_data['itemQuantity'];
+        $itemMilk = $request_data['itemMilk'];
+        $itemSugar = $request_data['itemSugar'];
+        $itemDecaf = $request_data['itemDecaf'];
+        $itemVanilla = $request_data['itemVanilla'];
+        $itemCaramel = $request_data['itemCaramel'];
+        $itemChocolate = $request_data['itemChocolate'];
+        $itemWhippedCream = $request_data['itemWhippedCream'];
+        $itemFrappe = $request_data['itemFrappe'];
+        $itemHeated = $request_data['itemHeated'];
+        $itemComment = $request_data['itemComment'];
+        $itemType = $request_data['itemType'];
 
         $db = new DbOperations;
 
-        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity);
+        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf,
+         $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
 
         if ($result == ADDED_TO_CART) {
 
