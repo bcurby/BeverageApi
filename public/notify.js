@@ -10,8 +10,6 @@ let router = express.Router();
 
 let request = require('request');
 
-let port = 8086
-
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json);
 
@@ -21,7 +19,7 @@ router.post('/send', function(req,res){
 
         let title = req.body.title;
         let body = req.body.body;
-        let token = req.body.token;
+        let token = 'eC3SRQ3sTv-aa5BmBuB7rM:APA91bHZjgNUZOyWVbWDVafhlNvLqg92Ph0lfjmKdhfcoGvJ5L4qi7pZNwgHIEMs2_u-ka7enq1uRfaMGHoqXZo1OlO29wlIzjfSudYULXsoczilF_hSujXVj06rR3cCAK6PiLN-id_-';
 
         request.post({
            headers: {
@@ -51,11 +49,11 @@ router.post('/send', function(req,res){
 
 app.use('/api', router);
 
-app.listen(port, function(){
+// app.listen(port, function(){
+//
+//     console.log("Server is listening to port " + port);
 
-    console.log("Server is listening to port " + port);
-
-});
+// });
 
 let http = require('http')
 

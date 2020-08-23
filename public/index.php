@@ -10,6 +10,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 require __DIR__ . '/../includes/DbOperations.php';
 
+
+
 $app = new \Slim\App([
     'settings' => [
         'displayErrorDetails' => true
@@ -575,7 +577,7 @@ $app->post("/notificationtoken", function(Request $request, Response $response) 
 
 });
 
-$app->post('/sendNotificationComplete', function(Request $request, Response $response){
+$app->post('/sendCompleteNotify', function(Request $request, Response $response){
 
     $request_data = $request->getParsedBody();
     $userID = $request_data['userID'];
@@ -587,8 +589,8 @@ $app->post('/sendNotificationComplete', function(Request $request, Response $res
         'body' => "Your Order Is Ready for Collection"
 
     );
+    $result = $db->sendingNotification($to);
 
-    $result = $db-> sendPushNotification($to, $data);
 
     if ($result == true) {
 
@@ -598,7 +600,7 @@ $app->post('/sendNotificationComplete', function(Request $request, Response $res
         $response->write(json_encode($message));
         return $response
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(601);
+            ->withStatus(202);
 
     }
     else {
@@ -610,7 +612,7 @@ $app->post('/sendNotificationComplete', function(Request $request, Response $res
             $response->write(json_encode($message));
             return $response
                 ->withHeader('Content-type', 'application/json')
-                ->withStatus(602);
+                ->withStatus(200);
 
         }
     }

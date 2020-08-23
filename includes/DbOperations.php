@@ -379,23 +379,118 @@ class DbOperations
 
     function getToken($userID)
     {
-        $stmt = $this->con->prepare("SELECT token FROM users WHERE id = ?");
+        $stmt = $this->con->prepare('SELECT token FROM users WHERE id = ?');
         $stmt->bind_param("s",$userID);
         $stmt->execute();
         $stmt->bind_result($token);
         $stmt->fetch();
 
 
-        return $token;
+       return $token;
     }
+    function sendPushNotify($to = '', $data = array()){
 
+        $api_key = 'ya29.c.Kl7ZB6DJ_FNvheIUhqz8EWkgboTOczm45SwNhFajaXV3BFlZgcDwbIR_6yLrrSS2aprSTK-owDhz6NEEtMx7M6Bi0qDUzCqbAvDhC7VCf-aFRykHLPCwb_1r7apZAoKL';
+        $fields = array('to' => $to, 'notification' => $data);
 
+        $headers = array(
+            'Content-Type:application/json',
+            'Authorization:key='.$api_key
+        );
+        $url = 'https://fcm.googleapis.com/fcm/send';
 
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+        $result = curl_exec($ch);
+        if ($result === FALSE) {
+            die('FCM Send Error: ' . curl_error($ch));
+        }
+        curl_close($ch);
+        return $result;
+    }
+    function sendingNotification($to)
+    {
+        $title="Working";
+        $message="It finally works";
 
+        define( 'API_ACCESS_KEY', 'ya29.c.Kl7ZB5iPydfpWPPqAwrnnoAHuK1gkLv-OKiGi2qee3UroRCd_7Nu7p14nggkeLa7S_bIywGN2--TVZQZt8n6mdqg64N7IbfkUIjhPOfmjM5S5gomIovVq0JW5UcuISjw');
+        $msg = array
+        (
+            'body'   =>$message,
+            'title'     => $title,
 
+        );
 
+        $fields = array
+        (
+            'registration_ids'            =>  $to  ,                 // "/topics/alert",
+            'priority' =>"high",
+            'data' => array("title"=>$title,"body"=>$message)
 
+        );
 
+        $headers = array
+        (
+            'Authorization: Bearer' . API_ACCESS_KEY,
+            'Content-Type: application/json'
+        );
+
+        $ch = curl_init();
+        curl_setopt( $ch,CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
+        curl_setopt( $ch,CURLOPT_POST, true );
+        curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+        curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+        $result = curl_exec($ch );
+        curl_close( $ch );
+
+//        // API access key from Google API's Console
+//        define('API_ACCESS_KEY','ya29.c.Kl7ZB5iPydfpWPPqAwrnnoAHuK1gkLv-OKiGi2qee3UroRCd_7Nu7p14nggkeLa7S_bIywGN2--TVZQZt8n6mdqg64N7IbfkUIjhPOfmjM5S5gomIovVq0JW5UcuISjw');
+//
+//        $url = 'https://fcm.googleapis.com/fcm/send' ;
+//
+//
+//// prepare the message
+//        $msg = array
+//        (
+//            'body' 	=> 'Body  Of Notification',
+//            'title'	=> 'Title Of Notification',
+////            'icon'	=> 'myicon',/*Default Icon*/
+////            'sound' => 'mySound'/*Default sound*/
+//        );
+//
+//
+//        $fields = array
+//        (
+//            'to'		=> $to,
+//            'notification'	=> $msg
+//        );
+//
+//
+//        $headers = array
+//        (
+//            'Authorization: Bearer ' . API_ACCESS_KEY,
+//            'Content-Type: application/json'
+//        );
+//
+//        $ch = curl_init();
+//        curl_setopt( $ch,CURLOPT_URL,$url);
+//        curl_setopt( $ch,CURLOPT_POST,true);
+//        curl_setopt( $ch,CURLOPT_HTTPHEADER,$headers);
+//        curl_setopt( $ch,CURLOPT_RETURNTRANSFER,true);
+//        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER,false);
+//        curl_setopt( $ch,CURLOPT_POSTFIELDS,json_encode($fields));
+//        $result = curl_exec($ch);
+//        curl_close($ch);
+
+        return $result;
+    }
 
 }

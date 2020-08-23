@@ -37,6 +37,3 @@
 
     define("TOKEN_RECEIVED", 501);
     define("TOKEN_FAILED", 502);
-
-    define("MESSAGE_SENT", 601);
-    define("MESSAGE_FAILED", 602);
