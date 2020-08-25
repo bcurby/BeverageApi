@@ -332,11 +332,11 @@ class DbOperations
     public function getOrderItems($cartID)
     {
         $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity, itemMilk, itemSugar, itemDecaf, 
-        itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment FROM cartitem WHERE cartID = ?");
+        itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemStatus FROM cartitem WHERE cartID = ?");
         $stmt->bind_param("s", $cartID);
         $stmt->execute();
         $stmt->bind_result($itemID, $itemTitle, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
-        $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
+        $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemStatus);
 
         $cart = array();
 
@@ -356,6 +356,7 @@ class DbOperations
             $temp['itemFrappe'] = $itemFrappe;
             $temp['itemHeated'] = $itemHeated;
             $temp['itemComment'] = $itemComment;
+            $temp['itemStatus'] = $itemStatus;
 
             array_push($cart, $temp);
         }
