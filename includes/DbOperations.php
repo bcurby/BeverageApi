@@ -487,8 +487,9 @@ class DbOperations
 	public function deleteOrder($orderID, $cartID) {
 		$stmt = $this->con->prepare("DELETE FROM orders WHERE orderID = $orderID");
 		$stmt1 = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID");
+		$stmt2 = $this->con->prepare("DELETE FROM cart WHERE cartID = $cartID");
 		
-		if ($stmt->execute() && $stmt1->execute()){
+		if ($stmt->execute() && $stmt1->execute() && $stmt2->execute()){
 			return ORDER_DELETED;
 		}
 		return ORDER_DELETED_FAILED;
