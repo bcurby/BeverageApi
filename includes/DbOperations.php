@@ -506,7 +506,7 @@ class DbOperations
 	}
 	
 	// CAFE SIDE - Update Cart Item Status
-	public function updateCartItemStatus($cartID, $itemID) {
+	public function updateCartItemStatus($cartID, $itemID, $itemStatus) {
 		$stmt = $this->con->prepare("UPDATE cartitem SET itemStatus = $itemStatus WHERE cartID = $cartID AND itemID = $itemID");
 		
 		if ($stmt->execute()){
@@ -529,4 +529,14 @@ class DbOperations
         $stmt->fetch();
         return $cartItemQuantity;
     }
+	
+	// CAFE SIDE - Check Cart Item Status
+	public function checkCartItemStatus($cartID, $itemID, $itemStatus) {
+		$stmt = $this->con->prepare("SELECT itemStatus FROM cartitem WHERE cartID = $cartID AND itemID = $itemID");
+		
+		if ($stmt->execute()){
+			return ITEM_STATUS_RECIEVED;
+		}
+		return ITEM_STATUS_NOT_RECIEVED;
+	}
 }
