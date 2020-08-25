@@ -47,3 +47,6 @@
 
     define("STAFF_ASSIGNED", 201);
     define("STAFF_ASSIGNED_FAILED", 401);
+
+    define("DELETE_CART_ITEM_PASSED", 201);
+    define("DELETE_CART_ITEM_FAILED", 402);

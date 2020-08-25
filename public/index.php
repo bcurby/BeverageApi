@@ -633,5 +633,36 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
     }
 });
 
+//Delete cart item
+$app->post('/deletecartitem', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $userID = $request_data['userID'];
+    $itemID = $request_data['itemID'];
+
+    $db = new DbOperations;
+
+    $result = $db->deleteCartItem($userID, $itemID);
+
+    if ($result == STAFF_DELETE_ITEM_PASSED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Cart Item Deleted';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == STAFF_DELETE_ITEM_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Cart Item Failed to Delete';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+});
+
 
 $app->run();

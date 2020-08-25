@@ -486,4 +486,16 @@ class DbOperations
         $stmt->fetch();
         return $cartItemQuantity;
     }
+
+    // Delete cart item
+    public function deleteCartItem($userID, $itemID) {
+        $cartID = $this->getCartIDByUserID($userID);
+
+        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID AND itemID = $itemID");
+        if ($stmt->execute()) {
+            return DELETE_CART_ITEM_PASSED;
+        } else {
+            return DELETE_CART_ITEM_FAILED;
+        }
+    }
 }
