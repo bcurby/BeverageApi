@@ -530,14 +530,4 @@ class DbOperations
         $stmt->fetch();
         return $cartItemQuantity;
     }
-	
-	// CAFE SIDE - Check Cart Item Status
-	public function checkCartItemStatus($cartID, $itemID, $itemStatus) {
-		$stmt = $this->con->prepare("SELECT itemStatus FROM cartitem WHERE cartID = $cartID AND itemID = $itemID");
-		
-		if ($stmt->execute()){
-			return ITEM_STATUS_RECIEVED;
-		}
-		return ITEM_STATUS_NOT_RECIEVED;
-	}
 }

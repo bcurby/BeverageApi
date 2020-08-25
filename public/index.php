@@ -755,35 +755,4 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
             ->withStatus(402);
     }
 });
-
-//Grab checkbox info from cartitem
-$app->post('/checkartitemstatus', function (Request $request, Response $response) {
-
-    $request_data = $request->getParsedBody();
-
-    $cartID = $request_data['cartID'];
-	$itemID = $request_data['itemID'];
-
-    $db = new DbOperations;
-
-    $result = $db->checkCartItemStatus($cartID, $itemID);
-
-    if ($result == ITEM_STATUS_RECIEVED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Cart item Status recieved';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == ITEM_STATUS_NOT_RECIEVED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Cart item Status not recieved';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
-    }
-});
 $app->run();
