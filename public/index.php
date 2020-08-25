@@ -639,13 +639,13 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
     $request_data = $request->getParsedBody();
 
     $userID = $request_data['userID'];
-    $itemID = $request_data['itemID'];
+    $itemTitle = $request_data['itemTitle'];
 
     $db = new DbOperations;
 
-    $result = $db->deleteCartItem($userID, $itemID);
+    $result = $db->deleteCartItem($userID, $itemTitle);
 
-    if ($result == STAFF_DELETE_ITEM_PASSED) {
+    if ($result == DELETE_CART_ITEM_PASSED) {
         $message = array();
         $message['error'] = false;
         $message['message'] = 'Cart Item Deleted';
@@ -653,7 +653,7 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
-    } else if ($result == STAFF_DELETE_ITEM_FAILED) {
+    } else if ($result == DELETE_CART_ITEM_FAILED) {
         $message = array();
         $message['error'] = false;
         $message['message'] = 'Cart Item Failed to Delete';

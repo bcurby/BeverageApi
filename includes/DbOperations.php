@@ -488,10 +488,11 @@ class DbOperations
     }
 
     // Delete cart item
-    public function deleteCartItem($userID, $itemID) {
+    public function deleteCartItem($userID, $itemTitle) {
         $cartID = $this->getCartIDByUserID($userID);
-
-        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID AND itemID = $itemID");
+        
+        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ?");
+        $stmt->bind_param("ss", $cartID, $itemTitle);
         if ($stmt->execute()) {
             return DELETE_CART_ITEM_PASSED;
         } else {
