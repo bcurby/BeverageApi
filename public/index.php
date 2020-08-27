@@ -147,6 +147,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         $itemTitle = $request_data['itemTitle'];
         $itemPrice = $request_data['itemPrice'];
         $itemQuantity = $request_data['itemQuantity'];
+        $itemSize = $request_data['itemSize'];
         $itemMilk = $request_data['itemMilk'];
         $itemSugar = $request_data['itemSugar'];
         $itemDecaf = $request_data['itemDecaf'];
@@ -161,7 +162,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
         $db = new DbOperations;
 
-        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf,
+        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf,
          $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
 
         if ($result == ADDED_TO_CART) {
@@ -175,7 +176,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(200);
-        } else if ($result == ITEM_ALREADY_IN_CART) {
+        } else if ($result == PROBLEM_ADDING_TO_CART) {
 
             $message = array();
             $message['error'] = false;
