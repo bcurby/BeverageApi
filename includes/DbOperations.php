@@ -141,8 +141,8 @@ class DbOperations
         if ($this->isCartActive($userID)) {
 
             $cartID = $this->getCartIDByUserID($userID);
-
-            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
+            $mysqli = new mysqli("localhost","my_user","my_password","my_db");
+            $mysqli ->  $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
                 VALUES (?, ?, ?, ?, 1, 0)");
             $stmt->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
 
@@ -150,7 +150,11 @@ class DbOperations
             $stmt2->bind_param("s", $cartID);
 
             if ($stmt->execute() && $stmt2->execute()) {
-                return ORDER_PLACED;
+
+                $lastID = mysqli_insert_id($stmt);
+
+
+                return ORDER_PLACED, $lastID;
             }
             return ORDER_FAILED;
         }
