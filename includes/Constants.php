@@ -18,6 +18,7 @@
 
     define('ADDED_TO_CART', 201);
     define('PROBLEM_ADDING_TO_CART', 403);
+    define('NOT_ENOUGH_ITEM_STOCK', 402);
     define('CART_EMPTY', 303);
 
     define('ORDER_PLACED', 201);

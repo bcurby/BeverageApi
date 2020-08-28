@@ -176,17 +176,30 @@ $app->post('/addtocart', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(200);
+
         } else if ($result == PROBLEM_ADDING_TO_CART) {
 
             $message = array();
             $message['error'] = false;
-            $message['message'] = 'Item already in Cart';
+            $message['message'] = 'Problem adding item to cart';
 
             $response->write(json_encode($message));
 
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(403);
+
+        } else if ($result == NOT_ENOUGH_ITEM_STOCK) {
+
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Not enough item in stock';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
         }
     }
     return $response
