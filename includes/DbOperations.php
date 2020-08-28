@@ -196,10 +196,10 @@ class DbOperations
     public function getItems($itemType)
     {
         //AS are present because the Android app expects those names as opposed to those used in the database
-        $stmt = $this->con->prepare("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType FROM items WHERE itemType = ?");
+        $stmt = $this->con->prepare("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock FROM items WHERE itemType = ?");
         $stmt->bind_param("s", $itemType);
         $stmt->execute();
-        $stmt->bind_result($itemID, $itemTitle, $itemDescription, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemExtras, $itemFrappe, $itemHeated, $itemType);
+        $stmt->bind_result($itemID, $itemTitle, $itemDescription, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemExtras, $itemFrappe, $itemHeated, $itemType, $itemStock);
 
         $menu = array();
 
@@ -217,6 +217,7 @@ class DbOperations
             $temp['frappe'] = $itemFrappe;
             $temp['heated'] = $itemHeated;
             $temp['itemType'] = $itemType;
+            $temp['itemStock'] = $itemStock;
 
             array_push($menu, $temp);
         }
