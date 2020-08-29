@@ -647,5 +647,19 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
     }
 });
 
+//Gets the values for a single menu item
+$app->get('/getmenuitem', function (Request $request, Response $response) {
+
+    $itemID = $_GET['itemID'];
+
+    $db = new DbOperations;
+
+    $item = $db->getMenuItem($itemID);
+
+    return $response
+        ->withJson($item)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
 
 $app->run();

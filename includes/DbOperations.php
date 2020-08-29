@@ -532,4 +532,37 @@ class DbOperations
         $stmt->fetch();
         return $itemStock;
     }
+
+
+    // Get single menu item
+    public function getMenuItem($itemID)
+    {
+        //AS are present because the Android app expects those names as opposed to those used in the database
+        $stmt = $this->con->prepare("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock FROM items WHERE id = ?");
+        $stmt->bind_param("s", $itemID);
+        $stmt->execute();
+        $stmt->bind_result($itemID, $itemTitle, $itemDescription, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemExtras, $itemFrappe, $itemHeated, $itemType, $itemStock);
+
+        $item = array();
+
+        while ($stmt->fetch()) {
+            $temp = array();
+
+            $temp['id'] = $itemID;
+            $temp['name'] = $itemTitle;
+            $temp['description'] = $itemDescription;
+            $temp['price'] = $itemPrice;
+            $temp['milk'] = $itemMilk;
+            $temp['sugar'] = $itemSugar;
+            $temp['decaf'] = $itemDecaf;
+            $temp['extras'] = $itemExtras;
+            $temp['frappe'] = $itemFrappe;
+            $temp['heated'] = $itemHeated;
+            $temp['itemType'] = $itemType;
+            $temp['itemStock'] = $itemStock;
+
+            array_push($item, $temp);
+        }
+        return $item;
+    }
 }
