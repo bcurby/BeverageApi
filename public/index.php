@@ -640,10 +640,21 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
 
     $userID = $request_data['userID'];
     $itemTitle = $request_data['itemTitle'];
-
+    $itemPrice = $request_data['itemPrice'];
+    $itemMilk = $request_data['itemMilk'];
+    $itemSugar = $request_data['itemSugar'];
+    $itemDecaf = $request_data['itemDecaf'];
+    $itemVanilla = $request_data['itemVanilla'];
+    $itemCaramel = $request_data['itemCaramel'];
+    $itemChocolate = $request_data['itemChocolate'];
+    $itemWhippedCream = $request_data['itemWhippedCream'];
+    $itemFrappe = $request_data['itemFrappe'];
+    $itemHeated = $request_data['itemHeated'];
+    $itemComment = $request_data['itemComment'];
     $db = new DbOperations;
 
-    $result = $db->deleteCartItem($userID, $itemTitle);
+    $result = $db->deleteCartItem($userID, $itemTitle, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+    $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
 
     if ($result == DELETE_CART_ITEM_PASSED) {
         $message = array();
