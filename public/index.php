@@ -673,8 +673,11 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
     $request_data = $request->getParsedBody();
 
     $userID = $request_data['userID'];
+    $itemID = $request_data['itemID'];
     $itemTitle = $request_data['itemTitle'];
     $itemPrice = $request_data['itemPrice'];
+    $itemQuantity = $request_data['itemQuantity'];
+    $itemSize = $request_data['itemSize'];
     $itemMilk = $request_data['itemMilk'];
     $itemSugar = $request_data['itemSugar'];
     $itemDecaf = $request_data['itemDecaf'];
@@ -687,7 +690,7 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
     $itemComment = $request_data['itemComment'];
     $db = new DbOperations;
 
-    $result = $db->deleteCartItem($userID, $itemTitle, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+    $result = $db->deleteCartItem($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
     $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
 
     if ($result == DELETE_CART_ITEM_PASSED) {

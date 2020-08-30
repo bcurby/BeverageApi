@@ -617,15 +617,24 @@ class DbOperations
 
     
     // Delete cart item
-    public function deleteCartItem($userID, $itemTitle, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+    public function deleteCartItem($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
     $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment) {
         $cartID = $this->getCartIDByUserID($userID);
         
-        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemMilk = ? AND itemSugar = ?
+        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
         AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
         AND itemComment = ?");
-        $stmt->bind_param("sssssssssssss", $cartID, $itemTitle, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+        $stmt->bind_param("ssssssssssssss", $cartID, $itemTitle, $itemPrice, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
         $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
+
+        //get actual stock level for item
+        $itemStock = $this->getItemStock($itemID);
+        $newItemStock = $itemStock + $itemQuantity;
+
+
+        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+        $stmt2->bind_param("ss", $newItemStock, $itemID);
+        $stmt2->execute();
         if ($stmt->execute()) {
             return DELETE_CART_ITEM_PASSED;
         } else {
