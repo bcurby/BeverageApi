@@ -464,6 +464,7 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
+            
     } else if ($result == DELIVERY_FAILED) {
         $message = array();
         $message['error'] = false;
@@ -500,6 +501,7 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
+
     } else if ($result == MARK_ORDER_DELIVERED_FAILED) {
         $message = array();
         $message['error'] = false;
@@ -529,14 +531,17 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
         $message['error'] = false;
         $message['message'] = 'Item Deleted';
         $response->write(json_encode($message));
+
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
+
     } else if ($result == STAFF_DELETE_ITEM_FAILED) {
         $message = array();
         $message['error'] = false;
         $message['message'] = 'Item Failed To Delete';
         $response->write(json_encode($message));
+
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(402);

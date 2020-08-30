@@ -614,4 +614,22 @@ class DbOperations
         }
         return $item;
     }
+
+    
+    // Delete cart item
+    public function deleteCartItem($userID, $itemTitle, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+    $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment) {
+        $cartID = $this->getCartIDByUserID($userID);
+        
+        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemMilk = ? AND itemSugar = ?
+        AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
+        AND itemComment = ?");
+        $stmt->bind_param("sssssssssssss", $cartID, $itemTitle, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+        $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
+        if ($stmt->execute()) {
+            return DELETE_CART_ITEM_PASSED;
+        } else {
+            return DELETE_CART_ITEM_FAILED;
+        }
+    }
 }
