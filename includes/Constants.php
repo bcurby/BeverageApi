@@ -47,3 +47,6 @@
 
     define("STAFF_ASSIGNED", 201);
     define("STAFF_ASSIGNED_FAILED", 401);
+
+    define("ORDER_FOUND", 201);
+    define("ORDER_NOT_FOUND", 402);

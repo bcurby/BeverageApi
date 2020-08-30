@@ -151,10 +151,7 @@ class DbOperations
 
             if ($stmt->execute() && $stmt2->execute()) {
 
-                $lastID = mysqli_insert_id($stmt);
-
-
-                return ORDER_PLACED, $lastID;
+                return ORDER_PLACED;
             }
             return ORDER_FAILED;
         }
@@ -272,7 +269,7 @@ class DbOperations
     }
 
     //Returns a users cartID by their associated userID
-    private function getCartIDByUserID($userID)
+    public function getCartIDByUserID($userID)
     {
         $stmt = $this->con->prepare("SELECT cartID FROM cart WHERE userID = ? AND cartStatus = 1");
         $stmt->bind_param("s", $userID);
@@ -490,4 +487,24 @@ class DbOperations
         $stmt->fetch();
         return $cartItemQuantity;
     }
+
+    public function getOrderStatus($userID){
+
+        $stmt = $this->con->prepare("SELECT orderID FROM completedorders WHERE userID = ? AND orderStatus = 1");
+        $stmt->bind_param("s", $userID);
+
+        $stmt->execute();
+        $stmt->bind_result($orderID);
+        $stmt->fetch();
+
+        return $orderID;
+    }
+
+    public function setStatusNotify($orderID){
+
+        $stmt = $this->con->prepare("UPDATE orderStatus FROM completedorders WHERE userID = ? AND orderStatus = 1");
+
+    }
+
+
 }

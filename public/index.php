@@ -634,6 +634,41 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
             ->withStatus(402);
     }
 });
+$app->get('/getOrderStatus', function (Request $request, Response $response){
+
+    $userID = $_GET['userID'];
+
+    $db = new DbOperations;
+
+    $result = $db->getOrderStatus($userID);
+
+    if($result != null){
+        return $response
+            ->withJson($result)
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    }else{
+
+        return $response
+            >withJson(null)
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+    }
+
+});
+
+
+$app->post('/notificationSent', function(Request $request, Response $response){
+
+    $db = new DbOperations;
+    $orderID = $_GET['orderID'];
+
+    $result = $db->setStatusNotify($orderID);
+
+
+
+});
+
 
 
 $app->run();
