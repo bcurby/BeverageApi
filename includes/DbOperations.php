@@ -120,17 +120,66 @@ class DbOperations
     }
 
 
+    
+
     //Empty user cart
     public function emptyCart($userID)
     {
         $cartID = $this->getCartIDByUserID($userID);
-        $stmt = $this->con->prepare("DELETE FROM cart WHERE cartID = $cartID");
-        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID");
+        $stmt = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = $cartID");
+
+        //Get item IDs and quantities for each cart item
+        $cart = $this->getCartItemIDsAndQuantities($cartID);
+    
+        $arraylength = count ($cart);
+    
+        $i = 0;
+
+        while ($i < $arraylength) {
+
+        $itemID = $cart[$i]['itemID'];
+        $itemQuantity = $cart[$i]['itemQuantity'];
+
+        $i++;
+
+        //get actual stock level for item
+        $itemStock = $this->getItemStock($itemID);
+        $newItemStock = $itemStock + $itemQuantity;
+
+
+        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+        $stmt2->bind_param("ss", $newItemStock, $itemID);
+        $stmt2->execute();
+        }
         if ($stmt->execute()) {
             return CART_EMPTY_PASS;
         } else {
             return CART_EMPTY_FAILED;
         }
+        
+    }    
+
+
+    //get Cart Item ID & matching quantities array
+    public function getCartItemIDsAndQuantities($cartID)
+    {
+        $stmt = $this->con->prepare("SELECT itemID, itemQuantity FROM cartitem WHERE cartID = ? AND itemType = 'food'");
+        $stmt->bind_param("s", $cartID);
+        $stmt->execute();
+        $stmt->bind_result($itemID, $itemQuantity);
+
+        $cart = array();
+
+        while ($stmt->fetch()) {
+             $temp = array();
+
+             //$temp['cartItemID'] = $cartItemID;
+             $temp['itemID'] = $itemID;
+             $temp['itemQuantity'] = $itemQuantity;
+
+            array_push($cart, $temp);
+        }
+        return $cart;
     }
 
 
