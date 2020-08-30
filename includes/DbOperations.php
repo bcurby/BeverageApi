@@ -237,7 +237,7 @@ class DbOperations
             itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType FROM cartitem WHERE cartID = ?");
             $stmt->bind_param("s", $cartID);
             $stmt->execute();
-            $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+            $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel,
             $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
 
             $cart = array();
@@ -335,7 +335,7 @@ class DbOperations
         itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemStatus FROM cartitem WHERE cartID = ?");
         $stmt->bind_param("s", $cartID);
         $stmt->execute();
-        $stmt->bind_result($itemID, $itemTitle, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
+        $stmt->bind_result($itemID, $itemTitle, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
         $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemStatus);
 
         $cart = array();
@@ -545,7 +545,17 @@ class DbOperations
 
     public function setStatusNotify($orderID){
 
-        $stmt = $this->con->prepare("UPDATE orderStatus FROM completedorders WHERE userID = ? AND orderStatus = 1");
+        $stmt = $this->con->prepare("UPDATE completedorders SET orderStatus TO 0 WHERE userID = $orderID");
+
+        if ($stmt->execute()){
+
+            return NOTIFICATION_SENT;
+
+        }else{
+
+            return NOTIFICATION_FAILED;
+        }
+
 
     }
 

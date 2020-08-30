@@ -54,6 +54,10 @@
     define("ORDER_FOUND", 201);
     define("ORDER_NOT_FOUND", 402);
 
+
+    define("NOTIFICATION_SENT", 201);
+    define("NOTIFICATION_FAILED", 402);
+
 	define("ORDER_DELETED", 201);
 	define("ORDER_DELETED_FAILED", 402);
 

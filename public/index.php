@@ -634,40 +634,7 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
             ->withStatus(402);
     }
 });
-$app->get('/getOrderStatus', function (Request $request, Response $response){
 
-    $userID = $_GET['userID'];
-
-    $db = new DbOperations;
-
-    $result = $db->getOrderStatus($userID);
-
-    if($result != null){
-        return $response
-            ->withJson($result)
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    }else{
-
-        return $response
-            >withJson(null)
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(402);
-    }
-
-});
-
-
-$app->post('/notificationSent', function(Request $request, Response $response){
-
-    $db = new DbOperations;
-    $orderID = $_GET['orderID'];
-
-    $result = $db->setStatusNotify($orderID);
-
-
-
-});
 
 
 //Add completed order to completedOrders table
@@ -792,4 +759,57 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
             ->withStatus(402);
     }
 });
+
+$app->get('/getOrderStatus', function (Request $request, Response $response){
+
+    $userID = $_GET['userID'];
+
+    $db = new DbOperations;
+
+    $result = $db->getOrderStatus($userID);
+
+    if($result != null){
+        return $response
+            ->withJson($result)
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    }else{
+
+        return $response
+            >withJson(null)
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+    }
+
+});
+
+
+$app->post('/notificationSent', function(Request $request, Response $response){
+
+    $db = new DbOperations;
+    $orderID = $_GET['orderID'];
+
+    $result = $db->setStatusNotify($orderID);
+
+    if ($result == NOTIFICATION_SENT){
+        $message['error'] = false;
+        $message['message'] = 'Notification has been sent';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    }
+    else if($result = NOTIFICATION_FAILED){
+
+        $message['error'] = true;
+        $message['message'] = 'Notification has failed to send';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+
+    }
+});
+
+
 $app->run();
