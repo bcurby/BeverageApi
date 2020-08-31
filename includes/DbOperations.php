@@ -315,11 +315,11 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemMilk, itemSugar, 
+            $stmt = $this->con->prepare("SELECT itemID, itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemSize, itemMilk, itemSugar, 
             itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType FROM cartitem WHERE cartID = ?");
             $stmt->bind_param("s", $cartID);
             $stmt->execute();
-            $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+            $stmt->bind_result($itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
             $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
 
             $cart = array();
@@ -327,9 +327,11 @@ class DbOperations
             while ($stmt->fetch()) {
                 $temp = array();
 
+                $temp['itemID'] = $itemID;
                 $temp['name'] = $itemTitle;
                 $temp['price'] = $itemPrice;
                 $temp['quantity'] = $itemQuantity;
+                $temp['itemSize'] = $itemSize;
                 $temp['itemMilk'] = $itemMilk;
                 $temp['itemSugar'] = $itemSugar;
                 $temp['itemDecaf'] = $itemDecaf;
