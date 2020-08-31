@@ -545,7 +545,7 @@ class DbOperations
 
     public function setStatusNotify($orderID){
 
-        $stmt = $this->con->prepare("UPDATE completedorders SET orderStatus TO 0 WHERE userID = $orderID");
+        $stmt = $this->con->prepare("UPDATE completedorders SET orderStatus = 0 WHERE orderID = $orderID");
 
         if ($stmt->execute()){
 
