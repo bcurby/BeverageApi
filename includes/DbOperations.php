@@ -35,69 +35,151 @@ class DbOperations
     $itemDecaf, $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType
     ) {
 
-        //does this user have an activer cart
-        if ($this->isCartActive($userID)) {
+        $itemStock = $this->getItemStock($itemID);
 
-            //if so then get the cartID
-            $cartID = $this->getCartIDByUserID($userID);
+        //Check that enough of the item is in stock
+        if ($itemStock - $itemQuantity >= 5) {
 
-            // check if the cartItem exists in the cart
-            if (!$this->isCartItemExist($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
-            $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType)) {
-                $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
-                 itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //does this user have an activer cart
+            if ($this->isCartActive($userID)) {
+
+                //if so then get the cartID
+                $cartID = $this->getCartIDByUserID($userID);
+
+                // check if the cartItem exists in the cart
+                if (!$this->isCartItemExist($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+                $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType)) {
+
+                    $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
+                    itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->bind_param(
+                        "sssssssssssssssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, 
+                        $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
+                    
+                        $newItemStock = $itemStock - $itemQuantity;
+                        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+                        $stmt2->bind_param(
+                            "ss", $newItemStock, $itemID);
+
+                    if ($stmt->execute() && $stmt2->execute()) {
+                        return ADDED_TO_CART;
+                    } else {
+                        return PROBLEM_ADDING_TO_CART;
+                    }
+                }
+                //When item exists already in the user cart return item quantity
+                $cartItemQuantity = $this->getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+                $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
+
+                $newQuantity = $itemQuantity + $cartItemQuantity;
+
+                $stmt = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
+                AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
+                AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemComment = ? AND itemType = ?");
                 $stmt->bind_param(
-                    "sssssssssssssssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, 
-                    $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
-                if ($stmt->execute()) {
+                    "sssssssssssssss", $newQuantity, $cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+                    $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
+
+                    $newItemStock = $itemStock - $itemQuantity;
+                        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+                        $stmt2->bind_param(
+                            "ss", $newItemStock, $itemID);
+
+                if ($stmt->execute() && $stmt2->execute()) {
+                return ADDED_TO_CART;
+                } else {
+                    return PROBLEM_ADDING_TO_CART;
+                }
+            } else {
+                $stmt = $this->con->prepare("INSERT INTO cart (userID, cartStatus) VALUES (?, 1)");
+                $stmt->bind_param("s", $userID);
+                $stmt->execute();
+                $cartID = $this->getCartIDByUserID($userID);
+                $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
+                itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param(
+                    "sssssssssssssssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar,$itemDecaf, $itemVanilla, 
+                    $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
+
+                    $newItemStock = $itemStock - $itemQuantity;
+                        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+                        $stmt2->bind_param(
+                            "ss", $newItemStock, $itemID);
+
+                if ($stmt->execute() && $stmt2->execute()) {
                     return ADDED_TO_CART;
+                } else {
+                    return PROBLEM_ADDING_TO_CART;
                 }
             }
-            //When item exists already in the user cart return item quantity
-            $cartItemQuantity = $this->getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
-            $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
-
-            $newQuantity = $itemQuantity + $cartItemQuantity;
-
-            $stmt = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
-            AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
-            AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemComment = ? AND itemType = ?");
-            $stmt->bind_param(
-                "sssssssssssssss", $newQuantity, $cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
-                $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
-            $stmt->execute();
-            return ADDED_TO_CART;
         } else {
-            $stmt = $this->con->prepare("INSERT INTO cart (userID, cartStatus) VALUES (?, 1)");
-            $stmt->bind_param("s", $userID);
-            $stmt->execute();
-            $cartID = $this->getCartIDByUserID($userID);
-            $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
-            itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param(
-                "sssssssssssssssss", $cartID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar,$itemDecaf, $itemVanilla, 
-                $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
-            if ($stmt->execute()) {
-                return ADDED_TO_CART;
-            }
-        }
-        return PROBLEM_ADDING_TO_CART;
+        return NOT_ENOUGH_ITEM_STOCK;
+        }   
     }
 
+
+    
 
     //Empty user cart
     public function emptyCart($userID)
     {
         $cartID = $this->getCartIDByUserID($userID);
-        $stmt = $this->con->prepare("DELETE FROM cart WHERE cartID = $cartID");
-        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID");
+        $stmt = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = $cartID");
+
+        //Get item IDs and quantities for each cart item
+        $cart = $this->getCartItemIDsAndQuantities($cartID);
+    
+        $arraylength = count ($cart);
+    
+        $i = 0;
+
+        while ($i < $arraylength) {
+
+        $itemID = $cart[$i]['itemID'];
+        $itemQuantity = $cart[$i]['itemQuantity'];
+
+        $i++;
+
+        //get actual stock level for item
+        $itemStock = $this->getItemStock($itemID);
+        $newItemStock = $itemStock + $itemQuantity;
+
+
+        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+        $stmt2->bind_param("ss", $newItemStock, $itemID);
+        $stmt2->execute();
+        }
         if ($stmt->execute()) {
             return CART_EMPTY_PASS;
         } else {
             return CART_EMPTY_FAILED;
         }
+        
+    }    
+
+
+    //get Cart Item ID & matching quantities array
+    public function getCartItemIDsAndQuantities($cartID)
+    {
+        $stmt = $this->con->prepare("SELECT itemID, itemQuantity FROM cartitem WHERE cartID = ? AND itemType = 'food'");
+        $stmt->bind_param("s", $cartID);
+        $stmt->execute();
+        $stmt->bind_result($itemID, $itemQuantity);
+
+        $cart = array();
+
+        while ($stmt->fetch()) {
+             $temp = array();
+
+             //$temp['cartItemID'] = $cartItemID;
+             $temp['itemID'] = $itemID;
+             $temp['itemQuantity'] = $itemQuantity;
+
+            array_push($cart, $temp);
+        }
+        return $cart;
     }
 
 
@@ -196,10 +278,10 @@ class DbOperations
     public function getItems($itemType)
     {
         //AS are present because the Android app expects those names as opposed to those used in the database
-        $stmt = $this->con->prepare("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType FROM items WHERE itemType = ?");
+        $stmt = $this->con->prepare("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock FROM items WHERE itemType = ?");
         $stmt->bind_param("s", $itemType);
         $stmt->execute();
-        $stmt->bind_result($itemID, $itemTitle, $itemDescription, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemExtras, $itemFrappe, $itemHeated, $itemType);
+        $stmt->bind_result($itemID, $itemTitle, $itemDescription, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemExtras, $itemFrappe, $itemHeated, $itemType, $itemStock);
 
         $menu = array();
 
@@ -217,6 +299,7 @@ class DbOperations
             $temp['frappe'] = $itemFrappe;
             $temp['heated'] = $itemHeated;
             $temp['itemType'] = $itemType;
+            $temp['itemStock'] = $itemStock;
 
             array_push($menu, $temp);
         }
@@ -232,11 +315,11 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("SELECT itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemMilk, itemSugar, 
+            $stmt = $this->con->prepare("SELECT itemID, itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemSize, itemMilk, itemSugar, 
             itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType FROM cartitem WHERE cartID = ?");
             $stmt->bind_param("s", $cartID);
             $stmt->execute();
-            $stmt->bind_result($itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+            $stmt->bind_result($itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
             $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
 
             $cart = array();
@@ -244,9 +327,11 @@ class DbOperations
             while ($stmt->fetch()) {
                 $temp = array();
 
+                $temp['itemID'] = $itemID;
                 $temp['name'] = $itemTitle;
                 $temp['price'] = $itemPrice;
                 $temp['quantity'] = $itemQuantity;
+                $temp['itemSize'] = $itemSize;
                 $temp['itemMilk'] = $itemMilk;
                 $temp['itemSugar'] = $itemSugar;
                 $temp['itemDecaf'] = $itemDecaf;
@@ -485,5 +570,77 @@ class DbOperations
         $stmt->bind_result($cartItemQuantity);
         $stmt->fetch();
         return $cartItemQuantity;
+    }
+
+
+    //get Item Stock
+    public function getItemStock($itemID)
+    {
+        $stmt = $this->con->prepare("SELECT itemStock FROM items WHERE id = ?");
+        $stmt->bind_param("s", $itemID);
+        $stmt->execute();
+        $stmt->bind_result($itemStock);
+        $stmt->fetch();
+        return $itemStock;
+    }
+
+
+    // Get single menu item
+    public function getMenuItem($itemID)
+    {
+        //AS are present because the Android app expects those names as opposed to those used in the database
+        $stmt = $this->con->prepare("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock FROM items WHERE id = ?");
+        $stmt->bind_param("s", $itemID);
+        $stmt->execute();
+        $stmt->bind_result($itemID, $itemTitle, $itemDescription, $itemPrice, $itemMilk, $itemSugar, $itemDecaf, $itemExtras, $itemFrappe, $itemHeated, $itemType, $itemStock);
+
+        $item = array();
+
+        while ($stmt->fetch()) {
+            $temp = array();
+
+            $temp['id'] = $itemID;
+            $temp['name'] = $itemTitle;
+            $temp['description'] = $itemDescription;
+            $temp['price'] = $itemPrice;
+            $temp['milk'] = $itemMilk;
+            $temp['sugar'] = $itemSugar;
+            $temp['decaf'] = $itemDecaf;
+            $temp['extras'] = $itemExtras;
+            $temp['frappe'] = $itemFrappe;
+            $temp['heated'] = $itemHeated;
+            $temp['itemType'] = $itemType;
+            $temp['itemStock'] = $itemStock;
+
+            array_push($item, $temp);
+        }
+        return $item;
+    }
+
+    
+    // Delete cart item
+    public function deleteCartItem($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+    $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment) {
+        $cartID = $this->getCartIDByUserID($userID);
+        
+        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
+        AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
+        AND itemComment = ?");
+        $stmt->bind_param("ssssssssssssss", $cartID, $itemTitle, $itemPrice, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+        $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
+
+        //get actual stock level for item
+        $itemStock = $this->getItemStock($itemID);
+        $newItemStock = $itemStock + $itemQuantity;
+
+
+        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+        $stmt2->bind_param("ss", $newItemStock, $itemID);
+        $stmt2->execute();
+        if ($stmt->execute()) {
+            return DELETE_CART_ITEM_PASSED;
+        } else {
+            return DELETE_CART_ITEM_FAILED;
+        }
     }
 }
