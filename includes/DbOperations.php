@@ -143,14 +143,17 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
+            $stmt1 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
+            $stmt1->bind_param("ss", $cartID, $userID);
+
+            $stmt2 = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
                 VALUES (?, ?, ?, ?, 1, 0)");
-            $stmt->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
+            $stmt2->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
 
-            $stmt2 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
-            $stmt2->bind_param("s", $cartID);
+            $stmt3 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
+            $stmt3->bind_param("s", $cartID);
 
-            if ($stmt->execute() && $stmt2->execute()) {
+            if ($stmt1->execute() && $stmt2->execute() && $stmt3->execute()) {
                 return ORDER_PLACED;
             }
             return ORDER_FAILED;
