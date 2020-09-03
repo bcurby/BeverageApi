@@ -807,16 +807,16 @@ $app->post('/notificationSent', function(Request $request, Response $response){
 
 
 //Get active CartID for user
-$app->get('/getcartidbyuserid', function (Request $request, Response $response) {
+$app->get('/getcartdetails', function (Request $request, Response $response) {
 
     $userID = $_GET['userID'];
 
     $db = new DbOperations;
 
-    $cartID = $db->getCartIDByUserID($userID);
+    $cart = $db->getCartDetails($userID);
 
     return $response
-        ->withJson($cartID)
+        ->withJson($cart)
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });

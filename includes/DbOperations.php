@@ -560,8 +560,23 @@ class DbOperations
 
             return NOTIFICATION_FAILED;
         }
+    }
 
+    public function getCartDetails($userID){
 
+        $stmt = $this->con->prepare("SELECT cartID, userID, cartStatus FROM cart WHERE userID = ? AND cartStatus = 1");
+        $stmt->bind_param("s", $userID);
+
+        $stmt->execute();
+        $stmt->bind_result($cartID, $userID, $cartStatus);
+        $stmt->fetch();
+
+        $cart = array();
+        $cart['cartID'] = $cartID;
+        $cart['userID'] = $userID;
+        $cart['cartStatus'] = $cartStatus;
+        
+        return $cart;
     }
 
 
