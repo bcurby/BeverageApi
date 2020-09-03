@@ -643,4 +643,12 @@ class DbOperations
             return DELETE_CART_ITEM_FAILED;
         }
     }
+
+    
+        // CAFE SIDE - Get the menu items for the staff menu and send all the attributes of each item
+        public function getItemsForStaffMenu() {
+            $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock FROM items");
+
+            return $results->fetch_all(MYSQLI_ASSOC);
+        }
 }

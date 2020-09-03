@@ -759,4 +759,17 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+//Get items for staff menu
+$app->get('/getitemsforstaffmenu', function(Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $items = $db->getItemsForStaffMenu();
+
+    return $response
+        ->withJson($items)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
 $app->run();
