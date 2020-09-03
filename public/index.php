@@ -760,25 +760,25 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
     }
 });
 
-$app->get('/getOrderStatus', function (Request $request, Response $response){
+$app->get('/getorderstatus', function (Request $request, Response $response){
 
     $userID = $_GET['userID'];
 
     $db = new DbOperations;
 
-    $result = $db->getOrderStatus($userID);
+    $order = $db->getOrderStatus($userID);
 
-    if($result != null){
+    if($order != null){
         return $response
-            ->withJson($result)
+            ->withJson($order)
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    }else{
+            ->withStatus(200);
+    //}else{
 
-        return $response
-            >withJson(null)
-                ->withHeader('Content-type', 'application/json')
-                ->withStatus(402);
+       // return $response
+         //   >withJson(null)
+          //      ->withHeader('Content-type', 'application/json')
+           //     ->withStatus(402);
     }
 
 });
@@ -797,7 +797,7 @@ $app->post('/notificationSent', function(Request $request, Response $response){
         $response->write(json_encode($message));
         return $response
             ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
+            ->withStatus(200);
     }
     else if($result = NOTIFICATION_FAILED){
 

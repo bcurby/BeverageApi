@@ -408,7 +408,7 @@ class DbOperations
     }
 
 
-    // CAFE SIDE - Get active order list
+    // CAFE SIDE - Get active deliveries list
     public function getDeliveriesDetails()
     {
         $results = $this->con->query("SELECT userID, cartID, streetNumber, streetName FROM deliveries WHERE deliveryStatus = 1");
@@ -476,7 +476,7 @@ class DbOperations
 
 	// CAFE SIDE - Add Order to completedOrders Table
 	public function addCompletedOrder($orderID) {
-		$stmt = $this->con->prepare("INSERT INTO completedorders SELECT * FROM orders WHERE orderID = $orderID");
+        $stmt = $this->con->prepare("INSERT INTO completedorders SELECT * FROM orders WHERE orderID = $orderID");
 
 		if ($stmt->execute()){
 			return ORDER_RECORDED;
@@ -533,14 +533,19 @@ class DbOperations
 
     public function getOrderStatus($userID){
 
-        $stmt = $this->con->prepare("SELECT orderID FROM completedorders WHERE userID = ? AND orderStatus = 1");
+        $stmt = $this->con->prepare("SELECT orderID, cartID, orderStatus FROM orders WHERE userID = ?");
         $stmt->bind_param("s", $userID);
 
         $stmt->execute();
-        $stmt->bind_result($orderID);
+        $stmt->bind_result($orderID, $cartID, $orderStatus);
         $stmt->fetch();
 
-        return $orderID;
+        $order = array();
+        $order['orderID'] = $orderID;
+        $order['cartID'] = $cartID;
+        $order['orderStatus'] = $orderStatus;
+        
+        return $order;
     }
 
     public function setStatusNotify($orderID){
