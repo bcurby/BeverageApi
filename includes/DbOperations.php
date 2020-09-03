@@ -531,10 +531,11 @@ class DbOperations
         return $cartItemQuantity;
     }
 
-    public function getOrderStatus($userID){
+    //Returns the order details (orderID & cartID) along with order status
+    public function getOrderStatus($userID, $cartID){
 
-        $stmt = $this->con->prepare("SELECT orderID, cartID, orderStatus FROM orders WHERE userID = ?");
-        $stmt->bind_param("s", $userID);
+        $stmt = $this->con->prepare("SELECT orderID, cartID, orderStatus FROM orders WHERE userID = ? AND cartID = ?");
+        $stmt->bind_param("ss", $userID, $cartID);
 
         $stmt->execute();
         $stmt->bind_result($orderID, $cartID, $orderStatus);

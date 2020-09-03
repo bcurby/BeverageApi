@@ -763,17 +763,16 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
 $app->get('/getorderstatus', function (Request $request, Response $response){
 
     $userID = $_GET['userID'];
+    $cartID = $_GET['cartID'];
 
     $db = new DbOperations;
 
-    $order = $db->getOrderStatus($userID);
+    $order = $db->getOrderStatus($userID, $cartID);
 
-    if($order != null){
-        return $response
-            ->withJson($order)
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(200);
-    }
+    return $response
+        ->withJson($order)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
 
 });
 
