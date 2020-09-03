@@ -773,12 +773,6 @@ $app->get('/getorderstatus', function (Request $request, Response $response){
             ->withJson($order)
             ->withHeader('Content-type', 'application/json')
             ->withStatus(200);
-    //}else{
-
-       // return $response
-         //   >withJson(null)
-          //      ->withHeader('Content-type', 'application/json')
-           //     ->withStatus(402);
     }
 
 });
@@ -809,6 +803,22 @@ $app->post('/notificationSent', function(Request $request, Response $response){
             ->withStatus(402);
 
     }
+});
+
+
+//Get active CartID for user
+$app->get('/getcartidbyuserid', function (Request $request, Response $response) {
+
+    $userID = $_GET['userID'];
+
+    $db = new DbOperations;
+
+    $cartID = $db->getCartIDByUserID($userID);
+
+    return $response
+        ->withJson($cartID)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
 });
 
 

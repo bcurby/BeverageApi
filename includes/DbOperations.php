@@ -269,7 +269,7 @@ class DbOperations
     }
 
     //Returns a users cartID by their associated userID
-    private function getCartIDByUserID($userID)
+    public function getCartIDByUserID($userID)
     {
         $stmt = $this->con->prepare("SELECT cartID FROM cart WHERE userID = ? AND cartStatus = 1");
         $stmt->bind_param("s", $userID);
