@@ -821,4 +821,20 @@ $app->get('/getcartdetails', function (Request $request, Response $response) {
 });
 
 
+//Get CartID for last order placed by user
+$app->get('/getcartidfromusers', function (Request $request, Response $response) {
+
+    $userID = $_GET['userID'];
+
+    $db = new DbOperations;
+
+    $cart = $db->getCartIDFromUsers($userID);
+
+    return $response
+        ->withJson($cart)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+
 $app->run();

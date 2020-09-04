@@ -552,6 +552,7 @@ class DbOperations
         return $order;
     }
 
+
     public function setStatusNotify($orderID){
 
         $stmt = $this->con->prepare("UPDATE completedorders SET orderStatus = 0 WHERE orderID = $orderID");
@@ -565,6 +566,7 @@ class DbOperations
             return NOTIFICATION_FAILED;
         }
     }
+
 
     public function getCartDetails($userID){
 
@@ -584,4 +586,19 @@ class DbOperations
     }
 
 
+    public function getCartIDFromUsers($userID){
+
+        $stmt = $this->con->prepare("SELECT id, lastOrderCartID FROM users WHERE id = ?");
+        $stmt->bind_param("s", $userID);
+
+        $stmt->execute();
+        $stmt->bind_result($userID, $cartID);
+        $stmt->fetch();
+
+        $cart = array();
+        $cart['userID'] = $userID;
+        $cart['cartID'] = $cartID;
+        
+        return $cart;
+    }
 }
