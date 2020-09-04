@@ -110,7 +110,6 @@ $app->post('/placeorder', function (Request $request, Response $response) {
             $message = array();
             $message['error'] = false;
             $message['message'] = 'Your order was successful';
-            $message['orderID'] = $result;
 
             $response->write(json_encode($message));
 

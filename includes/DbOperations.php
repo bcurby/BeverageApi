@@ -143,17 +143,22 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
+            
+
             $stmt1 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
             $stmt1->bind_param("ss", $cartID, $userID);
 
-            $stmt2 = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
+            $stmt2 = $this->con->prepare("UPDATE users SET orderStatus = 1 WHERE id = ?");
+            $stmt2->bind_param("s", $userID);
+
+            $stmt3 = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
                 VALUES (?, ?, ?, ?, 1, 0)");
-            $stmt2->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
+            $stmt3->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
 
-            $stmt3 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
-            $stmt3->bind_param("s", $cartID);
+            $stmt4 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
+            $stmt4->bind_param("s", $cartID);
 
-            if ($stmt1->execute() && $stmt2->execute() && $stmt3->execute()) {
+            if ($stmt1->execute() && $stmt2->execute() && $stmt3->execute() && $stmt4->execute()) {
                 return ORDER_PLACED;
             }
             return ORDER_FAILED;
@@ -537,17 +542,19 @@ class DbOperations
     //Returns the order details (orderID & cartID) along with order status
     public function getOrderStatus($userID, $cartID){
 
-        $stmt = $this->con->prepare("SELECT orderID, cartID, orderStatus FROM orders WHERE userID = ? AND cartID = ?");
+        $stmt = $this->con->prepare("SELECT orderID, cartID, orderStatus, orderTime FROM orders WHERE userID = ? AND cartID = ?");
         $stmt->bind_param("ss", $userID, $cartID);
 
         $stmt->execute();
-        $stmt->bind_result($orderID, $cartID, $orderStatus);
+        $stmt->bind_result($orderID, $cartID, $orderStatus, $orderTime);
         $stmt->fetch();
 
         $order = array();
         $order['orderID'] = $orderID;
         $order['cartID'] = $cartID;
         $order['orderStatus'] = $orderStatus;
+        $order['orderTime'] = $orderTime;
+
         
         return $order;
     }
@@ -588,17 +595,20 @@ class DbOperations
 
     public function getCartIDFromUsers($userID){
 
-        $stmt = $this->con->prepare("SELECT id, lastOrderCartID FROM users WHERE id = ?");
+        $stmt = $this->con->prepare("SELECT id, lastOrderCartID, orderStatus FROM users WHERE id = ?");
         $stmt->bind_param("s", $userID);
 
         $stmt->execute();
-        $stmt->bind_result($userID, $cartID);
+        $stmt->bind_result($userID, $cartID, $orderStatus);
         $stmt->fetch();
 
         $cart = array();
         $cart['userID'] = $userID;
         $cart['cartID'] = $cartID;
+        $cart['orderStatus'] = $orderStatus;
         
         return $cart;
     }
 }
+
+
