@@ -51,3 +51,7 @@
 
     define("DELETE_CART_ITEM_PASSED", 201);
     define("DELETE_CART_ITEM_FAILED", 402);
+
+    define("ITEM_ADDED", 201);
+    define("ITEM_FAILED_TO_ADD", 402);
+    define("ITEM_TITLE_EXISTS", 403);

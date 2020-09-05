@@ -645,10 +645,35 @@ class DbOperations
     }
 
     
-        // CAFE SIDE - Get the menu items for the staff menu and send all the attributes of each item
-        public function getItemsForStaffMenu() {
-            $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock FROM items");
+    // CAFE SIDE - Get the menu items for the staff menu and send all the attributes of each item
+    public function getItemsForStaffMenu() {
+        $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock, itemTime FROM items");
 
-            return $results->fetch_all(MYSQLI_ASSOC);
+        return $results->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // CAFE SIDE - Add Menu item
+    public function addMenuItem($itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $itemType, $itemTimeInt) {    
+        if (!$this->doesItemExistInItems($itemTitle)) {
+            $stmt = $this->con->prepare("INSERT INTO items(title, shortdesc, price, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock, itemTime) 
+            VALUES (?, ?, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, 0, ?, 10, $itemTimeInt)");
+            $stmt->bind_param("sss", $itemTitle, $itemShortDesc, $itemType);
+            if ($stmt->execute()) {
+                return ITEM_ADDED;
+            } else {
+                return ITEM_FAILED_TO_ADD;
+            }
+        } else {
+             return ITEM_TITLE_EXISTS;
         }
+    }
+
+    //CAFE SIDE - Check for staff record exists in database
+    private function doesItemExistInItems($itemTitle) {
+        $stmt = $this->con->prepare("SELECT title from items WHERE title = ?");
+        $stmt->bind_param("s", $itemTitle);
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
 }
