@@ -785,13 +785,14 @@ $app->post('/addmenuitem', function(Request $request, Response $response) {
     $decafOption = $request_data['decafOption'];
     $extrasOption = $request_data['extrasOption'];
     $frappeOption = $request_data['frappeOption'];
+    $heatedOption = $request_data['heatedOption'];
     $itemType = $request_data['itemType'];
     $itemTimeInt = $request_data['itemTimeInt'];
 
     $db = new DbOperations;
 
     $result = $db->addMenuItem($itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption,
-    $decafOption, $extrasOption, $frappeOption, $itemType, $itemTimeInt);
+    $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt);
 
     if ($result == ITEM_ADDED) {
         $message = array();

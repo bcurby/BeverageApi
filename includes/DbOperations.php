@@ -653,10 +653,10 @@ class DbOperations
     }
 
     // CAFE SIDE - Add Menu item
-    public function addMenuItem($itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $itemType, $itemTimeInt) {    
+    public function addMenuItem($itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt) {    
         if (!$this->doesItemExistInItems($itemTitle)) {
             $stmt = $this->con->prepare("INSERT INTO items(title, shortdesc, price, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock, itemTime) 
-            VALUES (?, ?, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, 0, ?, 10, $itemTimeInt)");
+            VALUES (?, ?, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, ?, 10, $itemTimeInt)");
             $stmt->bind_param("sss", $itemTitle, $itemShortDesc, $itemType);
             if ($stmt->execute()) {
                 return ITEM_ADDED;
