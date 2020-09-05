@@ -960,4 +960,105 @@ $app->get('/getcartidfromusers', function (Request $request, Response $response)
 });
 
 
+//Get CartTime for active cart
+$app->get('/getcarttime', function (Request $request, Response $response) {
+
+    $cartID = $_GET['cartID'];
+
+    $db = new DbOperations;
+
+    $cartTime = $db->getCartTime($cartID);
+
+    return $response
+        ->withJson($cartTime)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+
+//Get itemTime for item
+$app->get('/getitemtime', function (Request $request, Response $response) {
+
+    $itemID = $_GET['itemID'];
+
+    $db = new DbOperations;
+
+    $itemTime = $db->getItemTime($itemID);
+
+    return $response
+        ->withJson($itemTime)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+
+$app->post('/insertdrinkinactivecart', function(Request $request, Response $response){
+
+    $request_data = $request->getParsedBody();
+
+    $cartID = $request_data['cartID'];
+	$itemID = $request_data['itemID'];
+    $itemTitle = $request_data['itemTitle'];
+    $itemPrice = $request_data['itemPrice'];
+    $itemQuantity = $request_data['itemQuantity'];
+    $itemSize = $request_data['itemSize'];
+    $itemMilk = $request_data['itemMilk'];
+    $itemSugar = $request_data['itemSugar'];
+    $itemDecaf = $request_data['itemDecaf'];
+    $itemVanilla = $request_data['itemVanilla'];
+    $itemCaramel = $request_data['itemCaramel'];
+    $itemChocolate = $request_data['itemChocolate'];
+    $itemWhippedCream = $request_data['itemWhippedCream'];
+    $itemFrappe = $request_data['itemFrappe'];
+    $itemHeated = $request_data['itemHeated'];
+    $itemComment = $request_data['itemComment'];
+    $itemType = $request_data['itemType'];
+    
+
+    $db = new DbOperations;
+
+    $result = $db->insertDrinkInActiveCart(
+    $cartID,
+    $itemID,
+    $itemTitle,
+    $itemPrice,
+    $itemQuantity,
+    $itemSize,
+    $itemMilk,
+    $itemSugar,
+    $itemDecaf,
+    $itemVanilla,
+    $itemCaramel,
+    $itemChocolate,
+    $itemWhippedCream,
+    $itemFrappe,
+    $itemHeated,
+    $itemComment,
+    $itemType);
+
+    if ($result == ADDED_TO_CART) {
+
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Added to Cart';
+
+        $response->write(json_encode($message));
+
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(200);
+    } else if ($result == PROBLEM_ADDING_TO_CART) {
+
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Problem adding item to cart';
+
+        $response->write(json_encode($message));
+    }
+});
+
+
+
+
+
 $app->run();

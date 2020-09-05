@@ -30,8 +30,36 @@ class DbOperations
     }
 
 
+    //Returns the current cartTime for the active cart
+    public function getCartTime($cartID) {
+
+        $stmt = $this->con->prepare("SELECT cartTime FROM cart WHERE cartID = ? AND cartStatus = 1");
+        $stmt->bind_param("s", $cartID);
+        $stmt->execute();
+        $stmt->bind_result($cartTime);
+        $stmt->fetch();
+        return $cartTime;
+
+    }
+
+
+    //Returns the itemTime for a menu item
+    public function getItemTime($itemID) {
+
+        $stmt = $this->con->prepare("SELECT itemTime FROM items WHERE id = ?");
+        $stmt->bind_param("s", $itemID);
+        $stmt->execute();
+        $stmt->bind_result($itemTime);
+        $stmt->fetch();
+        return $itemTime;
+
+    }
+
+
+
     //Adds drink items to an active cart
     public function insertDrinkInActiveCart(
+        //$userID,
         $cartID,
         $itemID,
         $itemTitle,
@@ -51,10 +79,25 @@ class DbOperations
         $itemType
     ) {
 
-        $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
+        $cartTime = $this->getCartTime($cartID);
+
+        $itemTime = $this->getItemTime($itemID);
+
+        $totalItemTime = $itemTime * $itemQuantity;
+
+        $newCartTime = $cartTime + $totalItemTime;
+
+        $stmt1 = $this->con->prepare("UPDATE cart SET cartTime = ? WHERE cartID = ?");
+        $stmt1->bind_param(
+            "ss",
+            $newCartTime,
+            $cartID
+        );
+
+        $stmt2 = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
                     itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param(
+        $stmt2->bind_param(
             "sssssssssssssssss",
             $cartID,
             $itemID,
@@ -75,7 +118,7 @@ class DbOperations
             $itemType
         );
 
-        if ($stmt->execute()) {
+        if ($stmt1->execute() && $stmt2->execute()) {
             return ADDED_TO_CART;
         } else {
             return PROBLEM_ADDING_TO_CART;
@@ -104,6 +147,8 @@ class DbOperations
         $itemType,
         $itemStock
     ) {
+
+        
 
         $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
                     itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
@@ -160,7 +205,8 @@ class DbOperations
         $itemFrappe,
         $itemHeated,
         $itemComment,
-        $itemType,
+        $itemType
+        //$itemQuantity
     ) {
 
         $stmt = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
@@ -436,6 +482,7 @@ class DbOperations
                 )) {
 
                     $response = $this->insertDrinkInActiveCart(
+                        //$userID,
                         $cartID,
                         $itemID,
                         $itemTitle,
@@ -514,6 +561,7 @@ class DbOperations
                 $cartID = $this->getCartIDByUserID($userID);
 
                 $response = $this->insertDrinkInActiveCart(
+                    //$userID,
                     $cartID,
                     $itemID,
                     $itemTitle,
