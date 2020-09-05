@@ -183,6 +183,30 @@ class DbOperations
     }
 
 
+     //get order total time from items in order
+     public function getOrderTime($cartID)
+     {
+         $stmt = $this->con->prepare("SELECT itemTime FROM items WHERE cartID = ?");
+         $stmt->bind_param("s", $cartID);
+         $stmt->execute();
+         $stmt->bind_result($itemTime);
+ 
+         $order = array();
+ 
+         while ($stmt->fetch()) {
+              $temp = array();
+ 
+              $temp['itemTime'] = $itemTime;
+ 
+             array_push($order, $temp);
+         }
+         return $order;
+     }
+ 
+
+
+
+
     //Creates a new delivery
     public function bookDelivery($userID, $streetNumber, $streetName)
     {
@@ -224,28 +248,46 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            
+            $order = $this->getOrderTime($cartID);
 
-            $stmt1 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
-            $stmt1->bind_param("ss", $cartID, $userID);
+            $arraylength = count ($order);
 
-            $stmt2 = $this->con->prepare("UPDATE users SET orderStatus = 1 WHERE id = ?");
-            $stmt2->bind_param("s", $userID);
+            $i = 0;
+            $orderTime = 0;
 
-            $stmt3 = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff)
-                VALUES (?, ?, ?, ?, 1, 0)");
-            $stmt3->bind_param("ssss", $cartID, $userID, $orderTotal, $deliveryStatus);
+            while ($i < $arraylength) {
 
-            $stmt4 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
-            $stmt4->bind_param("s", $cartID);
+                $itemTime = $order[$i]['itemTime'];
 
-            if ($stmt1->execute() && $stmt2->execute() && $stmt3->execute() && $stmt4->execute()) {
+                $orderTime += $itemTime;
+
+                $i++;
+            }
+
+            //$stmt1 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
+            //$stmt1->bind_param("ss", $cartID, $userID);
+
+            $stmt2 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
+            $stmt2->bind_param("ss", $cartID, $userID);
+
+            $stmt3 = $this->con->prepare("UPDATE users SET orderStatus = 1 WHERE id = ?");
+            $stmt3->bind_param("s", $userID);
+
+            $stmt4 = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff, orderTime)
+                VALUES (?, ?, ?, ?, 1, 0, ?)");
+            $stmt4->bind_param("sssss", $cartID, $userID, $orderTotal, $deliveryStatus, $orderTime);
+
+            $stmt5 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
+            $stmt5->bind_param("s", $cartID);
+
+            if ($stmt2->execute() && $stmt3->execute() && $stmt4->execute() && $stmt5->execute()) {
                 return ORDER_PLACED;
             }
             return ORDER_FAILED;
         }
         return ORDER_FAILED;
     }
+
 
 
     //Login existing user
@@ -262,6 +304,7 @@ class DbOperations
             return USER_NOT_FOUND;
         }
     }
+
 
 
     //Returns a user from the database using registered email address
@@ -695,7 +738,7 @@ class DbOperations
         return $cart;
     }
 
-    
+
     //get Item Stock
     public function getItemStock($itemID)
     {
