@@ -55,3 +55,6 @@
     define("ITEM_ADDED", 201);
     define("ITEM_FAILED_TO_ADD", 402);
     define("ITEM_TITLE_EXISTS", 403);
+
+    define("ITEM_MODIFIED", 403);
+    define("ITEM_MODIFIED_FAILED", 403);

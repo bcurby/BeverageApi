@@ -668,6 +668,17 @@ class DbOperations
         }
     }
 
+    // CAFE SIDE - Add Menu item
+    public function modifyMenuItem($itemID, $itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt) {    
+            $stmt = $this->con->prepare("UPDATE items  SET title = ?, shortdesc = ?, price = ?, milk = ?, sugar = ?, decaf = ?, extras = ?, frappe = ?, heated = ?, itemType = ?, itemTime = ? WHERE id = ?");
+            $stmt->bind_param("ssssssssssss", $itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt, $itemID);
+            if ($stmt->execute()) {
+                return ITEM_MODIFIED;
+            } else {
+                return ITEM_MODIFIED_FAILED;
+            }
+    }
+
     //CAFE SIDE - Check for staff record exists in database
     private function doesItemExistInItems($itemTitle) {
         $stmt = $this->con->prepare("SELECT title from items WHERE title = ?");
