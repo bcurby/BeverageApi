@@ -31,7 +31,8 @@ class DbOperations
 
 
     //Returns the current cartTime for the active cart
-    public function getCartTime($cartID) {
+    public function getCartTime($cartID)
+    {
 
         $stmt = $this->con->prepare("SELECT cartTime FROM cart WHERE cartID = ? AND cartStatus = 1");
         $stmt->bind_param("s", $cartID);
@@ -39,12 +40,12 @@ class DbOperations
         $stmt->bind_result($cartTime);
         $stmt->fetch();
         return $cartTime;
-
     }
 
 
     //Returns the itemTime for a menu item
-    public function getItemTime($itemID) {
+    public function getItemTime($itemID)
+    {
 
         $stmt = $this->con->prepare("SELECT itemTime FROM items WHERE id = ?");
         $stmt->bind_param("s", $itemID);
@@ -52,7 +53,6 @@ class DbOperations
         $stmt->bind_result($itemTime);
         $stmt->fetch();
         return $itemTime;
-
     }
 
 
@@ -147,7 +147,7 @@ class DbOperations
         $itemStock
     ) {
 
-        
+
 
         $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
                     itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
@@ -724,11 +724,11 @@ class DbOperations
 
             //while ($i < $arraylength) {
 
-                //$itemTime = $order[$i]['itemTime'];
+            //$itemTime = $order[$i]['itemTime'];
 
-                //$orderTime += $itemTime;
+            //$orderTime += $itemTime;
 
-               // $i++;
+            // $i++;
             //}
 
             //$stmt1 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
@@ -1158,7 +1158,7 @@ class DbOperations
         $stmt = $this->con->prepare("UPDATE orders SET orderStatus = 0  WHERE cartID = ?");
         $stmt->bind_param("s", $cartID);
 
-        
+
 
         if ($stmt->execute()) {
             return ORDER_COMPLETED;
@@ -1400,10 +1400,12 @@ class DbOperations
         //$newItemQuantity = $this->getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
         //$itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
 
-        $newItemStock = $this->getNewItemStock($itemStock, $itemQuantity);
-        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
-        $stmt2->bind_param("ss", $newItemStock, $itemID);
-        $stmt2->execute();
+        if ($itemType == 'food') {
+            $newItemStock = $this->getNewItemStock($itemStock, $itemQuantity);
+            $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+            $stmt2->bind_param("ss", $newItemStock, $itemID);
+            $stmt2->execute();
+        }
 
         $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
         AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
