@@ -692,15 +692,14 @@ $app->get('/getmenuitem', function (Request $request, Response $response) {
 $app->post('/deletecartitem', function (Request $request, Response $response) {
 
     if (!haveEmptyParameters(array(
-        'userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity', 'itemSize', 'itemMilk',
+        'id', 'itemTitle', 'itemPrice', 'itemQuantity', 'itemSize', 'itemMilk',
         'itemSugar', 'itemDecaf', 'itemVanilla', 'itemCaramel', 'itemChocolate', 'itemWhippedCream', 'itemFrappe', 'itemHeated',
-        'itemComment'
+        'itemComment', 'itemType','userID' 
     ), $request, $response)) {
 
         $request_data = $request->getParsedBody();
 
-        $userID = $request_data['userID'];
-        $itemID = $request_data['itemID'];
+        $itemID = $request_data['id'];
         $itemTitle = $request_data['itemTitle'];
         $itemPrice = $request_data['itemPrice'];
         $itemQuantity = $request_data['itemQuantity'];
@@ -715,10 +714,12 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
         $itemFrappe = $request_data['itemFrappe'];
         $itemHeated = $request_data['itemHeated'];
         $itemComment = $request_data['itemComment'];
+        $itemType = $request_data['itemType'];
+        $userID = $request_data['userID'];
+
         $db = new DbOperations;
 
         $result = $db->deleteCartItem(
-            $userID,
             $itemID,
             $itemTitle,
             $itemPrice,
@@ -733,7 +734,9 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
             $itemWhippedCream,
             $itemFrappe,
             $itemHeated,
-            $itemComment
+            $itemComment,
+            $itemType,
+            $userID
         );
 
         if ($result == DELETE_CART_ITEM_PASSED) {
@@ -987,6 +990,39 @@ $app->get('/getitemtime', function (Request $request, Response $response) {
 
     return $response
         ->withJson($itemTime)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+
+//Get itemStock for item
+$app->get('/getitemstock', function (Request $request, Response $response) {
+
+    $itemID = $_GET['itemID'];
+
+    $db = new DbOperations;
+
+    $itemStock = $db->getItemStock($itemID);
+
+    return $response
+        ->withJson($itemStock)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+
+//Get new itemStock for item
+$app->get('/getnewitemstock', function (Request $request, Response $response) {
+
+    $itemStock = $_GET['itemStock'];
+    $itemQuantity = $_GET['itemQuantity'];
+
+    $db = new DbOperations;
+
+    $newItemStock = $db->getNewItemStock($itemStock, $itemQuantity);
+
+    return $response
+        ->withJson($newItemStock)
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });

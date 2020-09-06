@@ -59,7 +59,6 @@ class DbOperations
 
     //Adds drink items to an active cart
     public function insertDrinkInActiveCart(
-        //$userID,
         $cartID,
         $itemID,
         $itemTitle,
@@ -820,6 +819,7 @@ class DbOperations
             $temp['itemType'] = $itemType;
             $temp['itemStock'] = $itemStock;
 
+
             array_push($menu, $temp);
         }
         return $menu;
@@ -834,7 +834,7 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $stmt = $this->con->prepare("SELECT itemID, itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemSize, itemMilk, itemSugar, 
+            $stmt = $this->con->prepare("SELECT itemID AS id, itemTitle AS name, itemPrice AS price, itemQuantity AS quantity, itemSize, itemMilk, itemSugar, 
             itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType FROM cartitem WHERE cartID = ?");
             $stmt->bind_param("s", $cartID);
             $stmt->execute();
@@ -863,7 +863,7 @@ class DbOperations
             while ($stmt->fetch()) {
                 $temp = array();
 
-                $temp['itemID'] = $itemID;
+                $temp['id'] = $itemID;
                 $temp['name'] = $itemTitle;
                 $temp['price'] = $itemPrice;
                 $temp['quantity'] = $itemQuantity;
@@ -1331,6 +1331,14 @@ class DbOperations
     }
 
 
+    //New Item Stock
+    public function getNewItemStock($itemStock, $itemQuantity)
+    {
+        $newItemStock = $itemStock + $itemQuantity;
+        return $newItemStock;
+    }
+
+
     // Get single menu item
     public function getMenuItem($itemID)
     {
@@ -1366,7 +1374,6 @@ class DbOperations
 
     // Delete cart item
     public function deleteCartItem(
-        $userID,
         $itemID,
         $itemTitle,
         $itemPrice,
@@ -1381,9 +1388,22 @@ class DbOperations
         $itemWhippedCream,
         $itemFrappe,
         $itemHeated,
-        $itemComment
+        $itemComment,
+        $itemType,
+        $userID
     ) {
         $cartID = $this->getCartIDByUserID($userID);
+
+        //get actual stock level for item
+        $itemStock = $this->getItemStock($itemID);
+
+        //$newItemQuantity = $this->getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla,
+        //$itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
+
+        $newItemStock = $this->getNewItemStock($itemStock, $itemQuantity);
+        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+        $stmt2->bind_param("ss", $newItemStock, $itemID);
+        $stmt2->execute();
 
         $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
         AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
@@ -1406,14 +1426,6 @@ class DbOperations
             $itemComment
         );
 
-        //get actual stock level for item
-        $itemStock = $this->getItemStock($itemID);
-        $newItemStock = $itemStock + $itemQuantity;
-
-
-        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
-        $stmt2->bind_param("ss", $newItemStock, $itemID);
-        $stmt2->execute();
         if ($stmt->execute()) {
             return DELETE_CART_ITEM_PASSED;
         } else {
