@@ -1058,6 +1058,42 @@ $app->post('/insertdrinkinactivecart', function(Request $request, Response $resp
 });
 
 
+$app->post('/updateorderstatustocomplete', function(Request $request, Response $response){
+
+    if (!haveEmptyParameters(array('cartID'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $cartID = $request_data['cartID'];
+
+        $db = new DbOperations;
+    
+
+    $result = $db->updateOrderStatusToComplete($cartID);
+
+    if ($result == ORDER_COMPLETED){
+        $message['error'] = false;
+        $message['message'] = 'Order completed';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(200);
+    }
+    else if($result = ORDER_COMPLETED_FAILED){
+
+        $message['error'] = true;
+        $message['message'] = 'There was a problem completing order';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+
+    }
+}
+return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
 
 
 

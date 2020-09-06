@@ -71,3 +71,6 @@
     define("ITEM_STATUS_NOT_RECIEVED", 402);
     define("DELETE_CART_ITEM_PASSED", 201);
     define("DELETE_CART_ITEM_FAILED", 402);
+
+    define("ORDER_COMPLETED", 200);
+	define("ORDER_COMPLETED_FAILED", 402);

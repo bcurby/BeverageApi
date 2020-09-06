@@ -716,27 +716,27 @@ class DbOperations
 
             $cartID = $this->getCartIDByUserID($userID);
 
-            $order = $this->getOrderTime($cartID);
+            //$order = $this->getOrderTime($cartID);
 
-            $arraylength = count($order);
+            //$arraylength = count($order);
 
-            $i = 0;
+            //$i = 0;
             $orderTime = 0;
 
-            while ($i < $arraylength) {
+            //while ($i < $arraylength) {
 
-                $itemTime = $order[$i]['itemTime'];
+                //$itemTime = $order[$i]['itemTime'];
 
-                $orderTime += $itemTime;
+                //$orderTime += $itemTime;
 
-                $i++;
-            }
+               // $i++;
+            //}
 
             //$stmt1 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
             //$stmt1->bind_param("ss", $cartID, $userID);
 
-            $stmt2 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
-            $stmt2->bind_param("ss", $cartID, $userID);
+            //$stmt2 = $this->con->prepare("UPDATE users SET lastOrderCartID = ? WHERE id = ?");
+            //$stmt2->bind_param("ss", $cartID, $userID);
 
             $stmt3 = $this->con->prepare("UPDATE users SET orderStatus = 1 WHERE id = ?");
             $stmt3->bind_param("s", $userID);
@@ -748,7 +748,7 @@ class DbOperations
             $stmt5 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
             $stmt5->bind_param("s", $cartID);
 
-            if ($stmt2->execute() && $stmt3->execute() && $stmt4->execute() && $stmt5->execute()) {
+            if ($stmt3->execute() && $stmt4->execute() && $stmt5->execute()) {
                 return ORDER_PLACED;
             }
             return ORDER_FAILED;
@@ -1145,6 +1145,25 @@ class DbOperations
             return ORDER_RECORDED;
         }
         return ORDER_RECORDED_FAILED;
+    }
+
+    // CAFE SIDE - Update Order to complete (orderStatus = 0) in orders Table
+    public function updateOrderStatusToComplete($cartID)
+    {
+
+        $stmt2 = $this->con->prepare("UPDATE orders SET assignedStaff = 0  WHERE cartID = ?");
+        $stmt2->bind_param("s", $cartID);
+        $stmt2->execute();
+
+        $stmt = $this->con->prepare("UPDATE orders SET orderStatus = 0  WHERE cartID = ?");
+        $stmt->bind_param("s", $cartID);
+
+        
+
+        if ($stmt->execute()) {
+            return ORDER_COMPLETED;
+        }
+        return ORDER_COMPLETED_FAILED;
     }
 
     // CAFE SIDE - Delete Order from Orders
