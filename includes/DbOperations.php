@@ -147,12 +147,25 @@ class DbOperations
         $itemStock
     ) {
 
+        $cartTime = $this->getCartTime($cartID);
 
+        $itemTime = $this->getItemTime($itemID);
 
-        $stmt = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
+        $totalItemTime = $itemTime * $itemQuantity;
+
+        $newCartTime = $cartTime + $totalItemTime;
+
+        $stmt1 = $this->con->prepare("UPDATE cart SET cartTime = ? WHERE cartID = ?");
+        $stmt1->bind_param(
+            "ss",
+            $newCartTime,
+            $cartID
+        );
+
+        $stmt2 = $this->con->prepare("INSERT INTO cartitem (cartID, itemID, itemTitle, itemPrice, itemQuantity, itemSize, 
                     itemMilk, itemSugar, itemDecaf, itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemType) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param(
+        $stmt2->bind_param(
             "sssssssssssssssss",
             $cartID,
             $itemID,
@@ -174,14 +187,14 @@ class DbOperations
         );
 
         $newItemStock = $itemStock - $itemQuantity;
-        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
-        $stmt2->bind_param(
+        $stmt3 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+        $stmt3->bind_param(
             "ss",
             $newItemStock,
             $itemID
         );
 
-        if ($stmt->execute() && $stmt2->execute()) {
+        if ($stmt1->execute() && $stmt2->execute() && $stmt3->execute()) {
             return ADDED_TO_CART;
         } else {
             return PROBLEM_ADDING_TO_CART;
