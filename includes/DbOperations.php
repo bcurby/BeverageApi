@@ -664,6 +664,7 @@ class DbOperations
             $stmt2->bind_param("ss", $newItemStock, $itemID);
             $stmt2->execute();
         }
+
         if ($stmt->execute()) {
             return CART_EMPTY_PASS;
         } else {
@@ -764,8 +765,10 @@ class DbOperations
 
             //$arraylength = count($order);
 
+            $orderTime = $this->getCartTime($cartID);
+
             //$i = 0;
-            $orderTime = 0;
+            //$orderTime = 0;
 
             //while ($i < $arraylength) {
 
@@ -1447,15 +1450,29 @@ class DbOperations
 
         if ($itemType == 'food') {
             $newItemStock = $this->getNewItemStock($itemStock, $itemQuantity);
-            $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
-            $stmt2->bind_param("ss", $newItemStock, $itemID);
-            $stmt2->execute();
+            $stmt1 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+            $stmt1->bind_param("ss", $newItemStock, $itemID);
+            $stmt1->execute();
         }
 
-        $stmt = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
+        $currentCartTime = $this->getCartTime($cartID);
+        $itemTime = $this->getItemTime($itemID);
+        $thisItemTime = $itemTime * $itemQuantity;
+        $newCartTime = $currentCartTime - $thisItemTime;
+
+        $stmt2 = $this->con->prepare("UPDATE cart SET cartTime = ? WHERE cartID = ?");
+        $stmt2->bind_param(
+            "ss",
+            $newCartTime,
+            $cartID
+        );
+
+
+
+        $stmt3 = $this->con->prepare("DELETE FROM cartitem WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
         AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
         AND itemComment = ?");
-        $stmt->bind_param(
+        $stmt3->bind_param(
             "ssssssssssssss",
             $cartID,
             $itemTitle,
@@ -1473,7 +1490,7 @@ class DbOperations
             $itemComment
         );
 
-        if ($stmt->execute()) {
+        if ($stmt2->execute() && $stmt3->execute()) {
             return DELETE_CART_ITEM_PASSED;
         } else {
             return DELETE_CART_ITEM_FAILED;
