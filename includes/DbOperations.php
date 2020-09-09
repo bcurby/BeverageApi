@@ -194,6 +194,7 @@ class DbOperations
             $itemID
         );
 
+
         if ($stmt1->execute() && $stmt2->execute() && $stmt3->execute()) {
             return ADDED_TO_CART;
         } else {
@@ -217,14 +218,29 @@ class DbOperations
         $itemFrappe,
         $itemHeated,
         $itemComment,
-        $itemType
-        //$itemQuantity
+        $itemType,
+        $itemQuantity
     ) {
 
-        $stmt = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
+        $cartTime = $this->getCartTime($cartID);
+
+        $itemTime = $this->getItemTime($itemID);
+
+        $totalItemTime = $itemTime * $itemQuantity;
+
+        $newCartTime = $cartTime + $totalItemTime;
+
+        $stmt1 = $this->con->prepare("UPDATE cart SET cartTime = ? WHERE cartID = ?");
+        $stmt1->bind_param(
+            "ss",
+            $newCartTime,
+            $cartID
+        );
+
+        $stmt2 = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
                 AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
                 AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemComment = ? AND itemType = ?");
-        $stmt->bind_param(
+        $stmt2->bind_param(
             "sssssssssssssss",
             $newQuantity,
             $cartID,
@@ -243,13 +259,14 @@ class DbOperations
             $itemType
         );
 
-        if ($stmt->execute()) {
+        if ($stmt1->execute() && $stmt2->execute()) {
             return ADDED_TO_CART;
         } else {
             return PROBLEM_ADDING_TO_CART;
         }
     }
 
+    //YOU ARE HERE
     //Updates food item quantity already in active cart
     public function updateFoodItemAlreadyInActiveCart(
         $newQuantity,
@@ -271,10 +288,25 @@ class DbOperations
         $itemQuantity
     ) {
 
-        $stmt = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
+        $cartTime = $this->getCartTime($cartID);
+
+        $itemTime = $this->getItemTime($itemID);
+
+        $totalItemTime = $itemTime * $itemQuantity;
+
+        $newCartTime = $cartTime + $totalItemTime;
+
+        $stmt1 = $this->con->prepare("UPDATE cart SET cartTime = ? WHERE cartID = ?");
+        $stmt1->bind_param(
+            "ss",
+            $newCartTime,
+            $cartID
+        );
+
+        $stmt2 = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
                 AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
                 AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemComment = ? AND itemType = ?");
-        $stmt->bind_param(
+        $stmt2->bind_param(
             "sssssssssssssss",
             $newQuantity,
             $cartID,
@@ -294,14 +326,14 @@ class DbOperations
         );
 
         $newItemStock = $itemStock - $itemQuantity;
-        $stmt2 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
-        $stmt2->bind_param(
+        $stmt3 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+        $stmt3->bind_param(
             "ss",
             $newItemStock,
             $itemID
         );
 
-        if ($stmt->execute() && $stmt2->execute()) {
+        if ($stmt1->execute() && $stmt2->execute() && $stmt3->execute()) {
             return ADDED_TO_CART;
         } else {
             return PROBLEM_ADDING_TO_CART;
