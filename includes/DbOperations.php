@@ -559,7 +559,10 @@ class DbOperations
 	// CAFE SIDE - Add Order to completedOrders Table
 	public function addCompletedOrder($orderID) {
 		$stmt = $this->con->prepare("INSERT INTO completedorders SELECT * FROM orders WHERE orderID = $orderID");
-		
+		$stmt = $this->con->prepare("SELECT orderID FROM order WHERE orderID = ? AND cartID = ? AND userID = ?
+		AND orderTotal = ? AND deliveryStatus = ? AND orderStatus = ? AND assignedStaff = ?");
+		$stmt->bind_param(
+            "sssssss", $orderID, $cartID, $userID, $orderTotal, $deliveryStatus, $orderStatus, $assignedStaff);
 		if ($stmt->execute()){
 			return ORDER_RECORDED;
 		}
