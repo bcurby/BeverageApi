@@ -120,8 +120,6 @@ class DbOperations
     }
 
 
-    
-
     //Empty user cart
     public function emptyCart($userID)
     {
@@ -416,11 +414,11 @@ class DbOperations
     public function getOrderItems($cartID)
     {
         $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity, itemMilk, itemSugar, itemDecaf, 
-        itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment FROM cartitem WHERE cartID = ?");
+        itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemStatus FROM cartitem WHERE cartID = ?");
         $stmt->bind_param("s", $cartID);
         $stmt->execute();
         $stmt->bind_result($itemID, $itemTitle, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
-        $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
+        $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemStatus);
 
         $cart = array();
 
@@ -440,6 +438,7 @@ class DbOperations
             $temp['itemFrappe'] = $itemFrappe;
             $temp['itemHeated'] = $itemHeated;
             $temp['itemComment'] = $itemComment;
+            $temp['itemStatus'] = $itemStatus;
 
             array_push($cart, $temp);
         }
@@ -555,7 +554,52 @@ class DbOperations
         } else {
             return STAFF_ASSIGNED_FAILED;
         }
-    }
+	}
+		
+	// CAFE SIDE - Add Order to completedOrders Table
+	public function addCompletedOrder($orderID) {
+		$stmt = $this->con->prepare("INSERT INTO completedorders SELECT * FROM orders WHERE orderID = $orderID");
+		$stmt = $this->con->prepare("SELECT orderID FROM order WHERE orderID = ? AND cartID = ? AND userID = ?
+		AND orderTotal = ? AND deliveryStatus = ? AND orderStatus = ? AND assignedStaff = ?");
+		$stmt->bind_param(
+            "sssssss", $orderID, $cartID, $userID, $orderTotal, $deliveryStatus, $orderStatus, $assignedStaff);
+		if ($stmt->execute()){
+			return ORDER_RECORDED;
+		}
+		return ORDER_RECORDED_FAILED;
+	}
+	
+	// CAFE SIDE - Delete Order from Orders
+	public function deleteOrder($orderID, $cartID) {
+		$stmt = $this->con->prepare("DELETE FROM orders WHERE orderID = $orderID");
+		$stmt1 = $this->con->prepare("DELETE FROM cartitem WHERE cartID = $cartID");
+		$stmt2 = $this->con->prepare("DELETE FROM cart WHERE cartID = $cartID");
+		
+		if ($stmt->execute() && $stmt1->execute() && $stmt2->execute()){
+			return ORDER_DELETED;
+		}
+		return ORDER_DELETED_FAILED;
+	}
+	
+	// CAFE SIDE - Delete Order from Staff Queue
+	public function deleteStaffQueue($orderID) {
+		$stmt = $this->con->prepare("DELETE FROM staffqueue WHERE orderID = $orderID");
+		
+		if ($stmt->execute()){
+			return STAFF_QUEUE_DELETED;
+		}
+		return STAFF_QUEUE_DELETED_FAILED;
+	}
+	
+	// CAFE SIDE - Update Cart Item Status
+	public function updateCartItemStatus($cartID, $itemID, $itemStatus) {
+		$stmt = $this->con->prepare("UPDATE cartitem SET itemStatus = $itemStatus WHERE cartID = $cartID AND itemID = $itemID");
+		
+		if ($stmt->execute()){
+			return UPDATED_ITEM_STATUS;
+		}
+		return UPDATED_ITEM_STATUS_FAILED;
+	}
 
     //Get cartitem quantity
     public function getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
