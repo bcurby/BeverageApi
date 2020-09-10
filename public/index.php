@@ -138,7 +138,11 @@ $app->post('/placeorder', function (Request $request, Response $response) {
 //Add a clicked item to user cart
 $app->post('/addtocart', function (Request $request, Response $response) {
 
-    if (!haveEmptyParameters(array('userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity'), $request, $response)) {
+    if (!haveEmptyParameters(array(
+        'userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity', 'itemSize', 'itemMilk',
+        'itemSugar', 'itemDecaf', 'itemVanilla', 'itemCaramel', 'itemChocolate', 'itemWhippedCream', 'itemFrappe', 'itemHeated',
+        'itemComment', 'itemType'
+    ), $request, $response)) {
 
         $request_data = $request->getParsedBody();
 
@@ -147,6 +151,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         $itemTitle = $request_data['itemTitle'];
         $itemPrice = $request_data['itemPrice'];
         $itemQuantity = $request_data['itemQuantity'];
+        $itemSize = $request_data['itemSize'];
         $itemMilk = $request_data['itemMilk'];
         $itemSugar = $request_data['itemSugar'];
         $itemDecaf = $request_data['itemDecaf'];
@@ -161,8 +166,25 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 
         $db = new DbOperations;
 
-        $result = $db->addToCart($userID, $itemID, $itemTitle, $itemPrice, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf,
-         $itemVanilla, $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
+        $result = $db->addToCart(
+            $userID,
+            $itemID,
+            $itemTitle,
+            $itemPrice,
+            $itemQuantity,
+            $itemSize,
+            $itemMilk,
+            $itemSugar,
+            $itemDecaf,
+            $itemVanilla,
+            $itemCaramel,
+            $itemChocolate,
+            $itemWhippedCream,
+            $itemFrappe,
+            $itemHeated,
+            $itemComment,
+            $itemType
+        );
 
         if ($result == ADDED_TO_CART) {
 
@@ -175,17 +197,28 @@ $app->post('/addtocart', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(200);
-        } else if ($result == ITEM_ALREADY_IN_CART) {
+        } else if ($result == PROBLEM_ADDING_TO_CART) {
 
             $message = array();
             $message['error'] = false;
-            $message['message'] = 'Item already in Cart';
+            $message['message'] = 'Problem adding item to cart';
 
             $response->write(json_encode($message));
 
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(403);
+        } else if ($result == NOT_ENOUGH_ITEM_STOCK) {
+
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Not enough item in stock';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
         }
     }
     return $response
@@ -196,37 +229,42 @@ $app->post('/addtocart', function (Request $request, Response $response) {
 //empty cart
 $app->post('/emptycart', function (Request $request, Response $response) {
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('userID'), $request, $response)) {
+        $request_data = $request->getParsedBody();
 
-    $userID = $request_data['userID'];
+        $userID = $request_data['userID'];
 
-    $db = new DbOperations;
+        $db = new DbOperations;
 
-    $result = $db->emptyCart($userID);
+        $result = $db->emptyCart($userID);
 
-    if ($result == CART_EMPTY_PASS) {
+        if ($result == CART_EMPTY_PASS) {
 
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Cart Emptied';
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Cart Emptied';
 
-        $response->write(json_encode($message));
+            $response->write(json_encode($message));
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == CART_EMPTY_FAILED) {
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == CART_EMPTY_FAILED) {
 
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Cart Failed to Empty';
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Cart Failed to Empty';
 
-        $response->write(json_encode($message));
+            $response->write(json_encode($message));
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
     }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
@@ -515,6 +553,7 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
         $message['error'] = false;
         $message['message'] = 'Item Deleted';
         $response->write(json_encode($message));
+
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(201);
@@ -523,6 +562,7 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
         $message['error'] = false;
         $message['message'] = 'Item Failed To Delete';
         $response->write(json_encode($message));
+
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(402);
@@ -633,6 +673,7 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
     }
 });
 
+
 //Add completed order to completedOrders table
 $app->post('/addcompletedorder', function (Request $request, Response $response) {
 	
@@ -693,6 +734,93 @@ $app->post('/deleteorder', function (Request $request, Response $response) {
             ->withStatus(402);
     }
 });
+
+//Gets the values for a single menu item
+$app->get('/getmenuitem', function (Request $request, Response $response) {
+
+    $itemID = $_GET['itemID'];
+
+    $db = new DbOperations;
+
+    $item = $db->getMenuItem($itemID);
+
+    return $response
+        ->withJson($item)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+//Delete cart item
+$app->post('/deletecartitem', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array(
+        'userID', 'itemID', 'itemTitle', 'itemPrice', 'itemQuantity', 'itemSize', 'itemMilk',
+        'itemSugar', 'itemDecaf', 'itemVanilla', 'itemCaramel', 'itemChocolate', 'itemWhippedCream', 'itemFrappe', 'itemHeated',
+        'itemComment'
+    ), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $userID = $request_data['userID'];
+        $itemID = $request_data['itemID'];
+        $itemTitle = $request_data['itemTitle'];
+        $itemPrice = $request_data['itemPrice'];
+        $itemQuantity = $request_data['itemQuantity'];
+        $itemSize = $request_data['itemSize'];
+        $itemMilk = $request_data['itemMilk'];
+        $itemSugar = $request_data['itemSugar'];
+        $itemDecaf = $request_data['itemDecaf'];
+        $itemVanilla = $request_data['itemVanilla'];
+        $itemCaramel = $request_data['itemCaramel'];
+        $itemChocolate = $request_data['itemChocolate'];
+        $itemWhippedCream = $request_data['itemWhippedCream'];
+        $itemFrappe = $request_data['itemFrappe'];
+        $itemHeated = $request_data['itemHeated'];
+        $itemComment = $request_data['itemComment'];
+        $db = new DbOperations;
+
+        $result = $db->deleteCartItem(
+            $userID,
+            $itemID,
+            $itemTitle,
+            $itemPrice,
+            $itemQuantity,
+            $itemSize,
+            $itemMilk,
+            $itemSugar,
+            $itemDecaf,
+            $itemVanilla,
+            $itemCaramel,
+            $itemChocolate,
+            $itemWhippedCream,
+            $itemFrappe,
+            $itemHeated,
+            $itemComment
+        );
+
+        if ($result == DELETE_CART_ITEM_PASSED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Cart Item Deleted';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == DELETE_CART_ITEM_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Cart Item Failed to Delete';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
 
 //Delete from staffQueue table
 $app->post('/deletestaffqueue', function (Request $request, Response $response) {
