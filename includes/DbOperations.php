@@ -668,7 +668,7 @@ class DbOperations
         }
     }
 
-    // CAFE SIDE - Add Menu item
+    // CAFE SIDE - Edit Menu item
     public function modifyMenuItem($itemID, $itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt) {    
         if (!$this->doesItemExistInItemsModify($itemTitle, $itemID)) {
             $stmt = $this->con->prepare("UPDATE items  SET title = ?, shortdesc = ?, price = ?, milk = ?, sugar = ?, decaf = ?, extras = ?, frappe = ?, heated = ?, itemType = ?, itemTime = ? WHERE id = ?");
