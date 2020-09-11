@@ -687,4 +687,67 @@ class DbOperations
             return DELETE_CART_ITEM_FAILED;
         }
     }
+
+    
+    // CAFE SIDE - Get the menu items for the staff menu and send all the attributes of each item
+    public function getItemsForStaffMenu() {
+        $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock, itemTime FROM items");
+
+        return $results->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // CAFE SIDE - Add Menu item
+    public function addMenuItem($itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt) {    
+        if (!$this->doesItemExistInItemsAdd($itemTitle)) {
+            $stmt = $this->con->prepare("INSERT INTO items(title, shortdesc, price, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock, itemTime) 
+            VALUES (?, ?, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, ?, 10, $itemTimeInt)");
+            $stmt->bind_param("sss", $itemTitle, $itemShortDesc, $itemType);
+            if ($stmt->execute()) {
+                return ITEM_ADDED;
+            } else {
+                return ITEM_FAILED_TO_ADD;
+            }
+        } else {
+             return ITEM_TITLE_EXISTS;
+        }
+    }
+
+    // CAFE SIDE - Edit Menu item
+    public function modifyMenuItem($itemID, $itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt) {    
+        if (!$this->doesItemExistInItemsModify($itemTitle, $itemID)) {
+            $stmt = $this->con->prepare("UPDATE items  SET title = ?, shortdesc = ?, price = ?, milk = ?, sugar = ?, decaf = ?, extras = ?, frappe = ?, heated = ?, itemType = ?, itemTime = ? WHERE id = ?");
+            $stmt->bind_param("ssssssssssss", $itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt, $itemID);
+            if ($stmt->execute()) {
+                return ITEM_MODIFIED;
+            } else {
+                return ITEM_MODIFIED_FAILED;
+            }
+        } else {
+            return ITEM_TITLE_EXISTS;
+        }
+    }
+
+    //CAFE SIDE - Check for item existing in the database already when adding
+    private function doesItemExistInItemsAdd($itemTitle) {
+        $stmt = $this->con->prepare("SELECT title from items WHERE title = ?");
+        $stmt->bind_param("s", $itemTitle);
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
+
+    //CAFE SIDE - Check for item existing in the database already when modifying
+    private function doesItemExistInItemsModify($itemTitle, $itemID) {
+        $stmt = $this->con->prepare("SELECT title from items WHERE title = ?");
+        $stmt->bind_param("s", $itemTitle);
+        $stmt->execute();
+        $stmt->store_result();
+
+        $stmt2 = $this->con->prepare("SELECT id from items WHERE title = ? AND id != ?");
+        $stmt2->bind_param("ss", $itemTitle, $itemID);
+        $stmt2->execute();
+        $stmt2->store_result();
+
+        return $stmt->num_rows > 1 || $stmt2->num_rows > 0;
+    }
 }
