@@ -226,6 +226,7 @@ $app->post('/addtocart', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+
 //empty cart
 $app->post('/emptycart', function (Request $request, Response $response) {
 
@@ -450,6 +451,7 @@ $app->post('/staffValidate', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+
 //CAFE SIDE - gets the order items for each order clicked
 $app->get('/getorderitems', function (Request $request, Response $response) {
 
@@ -464,6 +466,7 @@ $app->get('/getorderitems', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
+
 
 //Creates a new delivery entry
 $app->post('/bookdelivery', function (Request $request, Response $response) {
@@ -537,6 +540,7 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
     }
 });
 
+
 //Delete menu item
 $app->post('/deletemenuitem', function (Request $request, Response $response) {
 
@@ -568,6 +572,7 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
             ->withStatus(402);
     }
 });
+
 
 //Add to queue
 $app->post('/addtoqueue', function (Request $request, Response $response) {
@@ -609,6 +614,7 @@ $app->post('/addtoqueue', function (Request $request, Response $response) {
     }
 });
 
+
 //Make queued order available
 $app->post('/makeorderavailable', function (Request $request, Response $response) {
 
@@ -640,6 +646,7 @@ $app->post('/makeorderavailable', function (Request $request, Response $response
             ->withStatus(402);
     }
 });
+
 
 //Make queued order available
 $app->post('/assignstafftoorder', function (Request $request, Response $response) {
@@ -704,6 +711,7 @@ $app->post('/addcompletedorder', function (Request $request, Response $response)
 	}
 });
 
+
 //Delete from order table
 $app->post('/deleteorder', function (Request $request, Response $response) {
 
@@ -735,6 +743,7 @@ $app->post('/deleteorder', function (Request $request, Response $response) {
     }
 });
 
+
 //Gets the values for a single menu item
 $app->get('/getmenuitem', function (Request $request, Response $response) {
 
@@ -749,6 +758,7 @@ $app->get('/getmenuitem', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
+
 
 //Delete cart item
 $app->post('/deletecartitem', function (Request $request, Response $response) {
@@ -855,6 +865,7 @@ $app->post('/deletestaffqueue', function (Request $request, Response $response) 
     }
 });
 
+
 //Update cartitem status when checked off
 $app->post('/updatecartitemstatus', function (Request $request, Response $response) {
 
@@ -893,6 +904,7 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
             ->withStatus(422);
     });
 
+
 //Get items for staff menu
 $app->get('/getitemsforstaffmenu', function (Request $request, Response $response) {
 
@@ -905,6 +917,7 @@ $app->get('/getitemsforstaffmenu', function (Request $request, Response $respons
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
+
 
 //Add menu item
 $app->post('/addmenuitem', function (Request $request, Response $response) {
@@ -977,6 +990,8 @@ $app->post('/addmenuitem', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+
+//Gets order status for view order/notification
 $app->get('/getorderstatus', function (Request $request, Response $response) {
 
     $userID = $_GET['userID'];
@@ -993,6 +1008,7 @@ $app->get('/getorderstatus', function (Request $request, Response $response) {
 });
 
 
+//notification sent
 $app->post('/notificationSent', function (Request $request, Response $response) {
 
     $db = new DbOperations;
@@ -1116,6 +1132,7 @@ $app->get('/getnewitemstock', function (Request $request, Response $response) {
 });
 
 
+//insert a drink item in an active cart (part off addToCart method)
 $app->post('/insertdrinkinactivecart', function (Request $request, Response $response) {
 
     $request_data = $request->getParsedBody();
@@ -1183,6 +1200,7 @@ $app->post('/insertdrinkinactivecart', function (Request $request, Response $res
 });
 
 
+//inserts a food item in an active cart (part of addToCart method)
 $app->post('/insertfoodinactivecart', function (Request $request, Response $response) {
 
     $request_data = $request->getParsedBody();
@@ -1252,6 +1270,7 @@ $app->post('/insertfoodinactivecart', function (Request $request, Response $resp
 });
 
 
+//updates a drink item already in an active cart (part of addToCart method)
 $app->post('/updatedrinkitemalreadyinactivecart', function (Request $request, Response $response) {
 
     $request_data = $request->getParsedBody();
@@ -1317,6 +1336,7 @@ $app->post('/updatedrinkitemalreadyinactivecart', function (Request $request, Re
 });
 
 
+//updates a food item already in an active cart (part of addToCart method)
 $app->post('/updatefooditemalreadyinactivecart', function (Request $request, Response $response) {
 
     $request_data = $request->getParsedBody();
@@ -1384,6 +1404,7 @@ $app->post('/updatefooditemalreadyinactivecart', function (Request $request, Res
 });
 
 
+//updates an order to complete (orderStatus = 0)
 $app->post('/updateorderstatustocomplete', function (Request $request, Response $response) {
 
     if (!haveEmptyParameters(array('cartID'), $request, $response)) {
