@@ -673,6 +673,68 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
     }
 });
 
+
+//Add completed order to completedOrders table
+$app->post('/addcompletedorder', function (Request $request, Response $response) {
+	
+	$request_data = $request->getParsedBody();
+	
+	$orderID = $request_data['orderID'];
+	
+	$db = new DbOperations;
+	
+	$result = $db->addCompletedOrder($orderID);
+	
+	if ($result == ORDER_RECORDED) {
+		$message = array();
+		$message['error'] = false;
+		$message['message'] = 'Order added to completedOrders';
+		$response->write(json_encode($message));
+		return $response
+			->withHeader('Content-type', 'application/json')
+			->withStatus(201);
+	} else if ($result == ORDER_RECORDED_FAILED) {
+		$message = array();
+		$message['error'] = false;
+		$message['message'] = 'Order wasnt added to completedOrders';
+		$response->write(json_encode($message));
+		return $response
+			->withHeader('Content-type', 'application/json')
+			->withStatus(402);
+	}
+});
+
+//Delete from order table
+$app->post('/deleteorder', function (Request $request, Response $response) {
+
+    $request_data = $request->getParsedBody();
+
+    $orderID = $request_data['orderID'];
+	$cartID = $request_data['cartID'];
+
+    $db = new DbOperations;
+
+    $result = $db->deleteOrder($orderID, $cartID);
+
+    if ($result == ORDER_DELETED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order has been deleted';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == ORDER_DELETED_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order failed to delete';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+});
+
 //Gets the values for a single menu item
 $app->get('/getmenuitem', function (Request $request, Response $response) {
 
@@ -762,67 +824,6 @@ $app->post('/deletecartitem', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
-
-//Add completed order to completedOrders table
-$app->post('/addcompletedorder', function (Request $request, Response $response) {
-
-    $request_data = $request->getParsedBody();
-
-    $orderID = $request_data['orderID'];
-
-    $db = new DbOperations;
-
-    $result = $db->addCompletedOrder($orderID);
-
-    if ($result == ORDER_RECORDED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Order added to completedOrders';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == ORDER_RECORDED_FAILED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Order wasnt added to completedOrders';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
-    }
-});
-
-//Delete from order table
-$app->post('/deleteorder', function (Request $request, Response $response) {
-
-    $request_data = $request->getParsedBody();
-
-    $orderID = $request_data['orderID'];
-    $cartID = $request_data['cartID'];
-
-    $db = new DbOperations;
-
-    $result = $db->deleteOrder($orderID, $cartID);
-
-    if ($result == ORDER_DELETED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Order has been deleted';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == ORDER_DELETED_FAILED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Order failed to delete';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
-    }
-});
 
 //Delete from staffQueue table
 $app->post('/deletestaffqueue', function (Request $request, Response $response) {
