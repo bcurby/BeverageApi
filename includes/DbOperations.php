@@ -218,7 +218,6 @@ class DbOperations
     }
 
 
-
     //Creates a new delivery
     public function bookDelivery($userID, $streetNumber, $streetName)
     {
@@ -281,7 +280,6 @@ class DbOperations
     }
 
 
-
     //Login existing user
     public function userLogin($email, $password)
     {
@@ -296,7 +294,6 @@ class DbOperations
             return USER_NOT_FOUND;
         }
     }
-
 
 
     //Returns a user from the database using registered email address
@@ -397,6 +394,7 @@ class DbOperations
         }
     }
 
+
     //Returns a users cartID by their associated userID
     public function getCartIDByUserID($userID)
     {
@@ -407,6 +405,7 @@ class DbOperations
         $stmt->fetch();
         return $cartID;
     }
+
 
     //Returns a users associated password for verification during Login
     private function getUsersPasswordByEmail($email)
@@ -492,6 +491,7 @@ class DbOperations
         return $cart;
     }
 
+
     //returns staff from database using id
     public function getStaffByID($staffID)
     {
@@ -509,6 +509,7 @@ class DbOperations
         return $staff;
     }
 
+
     //Login existing staff
     public function staffValidate($staffID)
     {
@@ -517,6 +518,7 @@ class DbOperations
         } else
             return STAFF_NOT_FOUND;
     }
+
 
     //Check for staff record exists in database
     private function isStaffExist($staffID)
@@ -527,6 +529,7 @@ class DbOperations
         $stmt->store_result();
         return $stmt->num_rows > 0;
     }
+
 
     // CAFE SIDE - Get active order list
     public function getOrdersDetails()
@@ -545,6 +548,7 @@ class DbOperations
         return $results->fetch_all(MYSQLI_ASSOC);
     }
 
+
     // CAFE SIDE - Delete menu item
     public function deleteMenuItem($itemID)
     {
@@ -555,6 +559,7 @@ class DbOperations
             return STAFF_DELETE_ITEM_FAILED;
         }
     }
+
 
     // CAFE SIDE - add order to queue and bind staff member to that order
     public function addToQueue($staffID, $orderID, $cartID)
@@ -574,6 +579,7 @@ class DbOperations
         }
     }
 
+
     //CAFE SIDE - Check for staff record exists in database
     private function doesOrderExistInQueue($orderID)
     {
@@ -582,6 +588,7 @@ class DbOperations
         $stmt->store_result();
         return $stmt->num_rows > 0;
     }
+
 
     // CAFE SIDE - Remove staff member from order
     public function makeOrderAvailable($staffID, $orderID, $cartID)
@@ -595,6 +602,7 @@ class DbOperations
         }
     }
 
+
     // CAFE SIDE - Assigns staff member to order
     public function assignStaffToOrder($staffID, $orderID, $cartID)
     {
@@ -606,7 +614,8 @@ class DbOperations
             return STAFF_ASSIGNED_FAILED;
         }
 	}
-		
+        
+    
 	// CAFE SIDE - Add Order to completedOrders Table
 	public function addCompletedOrder($orderID) {
 		$stmt = $this->con->prepare("INSERT INTO completedorders SELECT * FROM orders WHERE orderID = $orderID");
@@ -619,7 +628,8 @@ class DbOperations
 		}
 		return ORDER_RECORDED_FAILED;
 	}
-	
+    
+    
 	// CAFE SIDE - Delete Order from Orders
 	public function deleteOrder($orderID, $cartID) {
 		$stmt = $this->con->prepare("DELETE FROM orders WHERE orderID = $orderID");
@@ -631,7 +641,8 @@ class DbOperations
 		}
 		return ORDER_DELETED_FAILED;
 	}
-	
+    
+    
 	// CAFE SIDE - Delete Order from Staff Queue
 	public function deleteStaffQueue($orderID) {
 		$stmt = $this->con->prepare("DELETE FROM staffqueue WHERE orderID = $orderID");
@@ -641,7 +652,8 @@ class DbOperations
 		}
 		return STAFF_QUEUE_DELETED_FAILED;
 	}
-	
+    
+    
 	// CAFE SIDE - Update Cart Item Status
 	public function updateCartItemStatus($cartID, $itemID, $itemStatus) {
 		$stmt = $this->con->prepare("UPDATE cartitem SET itemStatus = $itemStatus WHERE cartID = $cartID AND itemID = $itemID");
@@ -651,6 +663,7 @@ class DbOperations
 		}
 		return UPDATED_ITEM_STATUS_FAILED;
 	}
+
 
     //Get cartitem quantity
     public function getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
@@ -668,7 +681,6 @@ class DbOperations
     }
 
 
-
     //get Item Stock
     public function getItemStock($itemID)
     {
@@ -679,7 +691,6 @@ class DbOperations
         $stmt->fetch();
         return $itemStock;
     }
-
 
 
     // Get single menu item
@@ -1189,5 +1200,72 @@ class DbOperations
     {
         $newItemStock = $itemStock + $itemQuantity;
         return $newItemStock;
+    }
+    
+
+    // CAFE SIDE - Get the menu items for the staff menu and send all the attributes of each item
+    public function getItemsForStaffMenu() {
+        $results = $this->con->query("SELECT `id`, `title` AS name, `shortdesc` AS description, `price`, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock, itemTime FROM items");
+
+        return $results->fetch_all(MYSQLI_ASSOC);
+    }
+
+
+    // CAFE SIDE - Add Menu item
+    public function addMenuItem($itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt) {    
+        if (!$this->doesItemExistInItemsAdd($itemTitle)) {
+            $stmt = $this->con->prepare("INSERT INTO items(title, shortdesc, price, milk, sugar, decaf, extras, frappe, heated, itemType, itemStock, itemTime) 
+            VALUES (?, ?, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, ?, 10, $itemTimeInt)");
+            $stmt->bind_param("sss", $itemTitle, $itemShortDesc, $itemType);
+            if ($stmt->execute()) {
+                return ITEM_ADDED;
+            } else {
+                return ITEM_FAILED_TO_ADD;
+            }
+        } else {
+             return ITEM_TITLE_EXISTS;
+        }
+    }
+
+
+    // CAFE SIDE - Edit Menu item
+    public function modifyMenuItem($itemID, $itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt) {    
+        if (!$this->doesItemExistInItemsModify($itemTitle, $itemID)) {
+            $stmt = $this->con->prepare("UPDATE items  SET title = ?, shortdesc = ?, price = ?, milk = ?, sugar = ?, decaf = ?, extras = ?, frappe = ?, heated = ?, itemType = ?, itemTime = ? WHERE id = ?");
+            $stmt->bind_param("ssssssssssss", $itemTitle, $itemShortDesc, $itemPriceDouble, $milkOption, $sugarOption, $decafOption, $extrasOption, $frappeOption, $heatedOption, $itemType, $itemTimeInt, $itemID);
+            if ($stmt->execute()) {
+                return ITEM_MODIFIED;
+            } else {
+                return ITEM_MODIFIED_FAILED;
+            }
+        } else {
+            return ITEM_TITLE_EXISTS;
+        }
+    }
+
+
+    //CAFE SIDE - Check for item existing in the database already when adding
+    private function doesItemExistInItemsAdd($itemTitle) {
+        $stmt = $this->con->prepare("SELECT title from items WHERE title = ?");
+        $stmt->bind_param("s", $itemTitle);
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
+
+
+    //CAFE SIDE - Check for item existing in the database already when modifying
+    private function doesItemExistInItemsModify($itemTitle, $itemID) {
+        $stmt = $this->con->prepare("SELECT title from items WHERE title = ?");
+        $stmt->bind_param("s", $itemTitle);
+        $stmt->execute();
+        $stmt->store_result();
+
+        $stmt2 = $this->con->prepare("SELECT id from items WHERE title = ? AND id != ?");
+        $stmt2->bind_param("ss", $itemTitle, $itemID);
+        $stmt2->execute();
+        $stmt2->store_result();
+
+        return $stmt->num_rows > 1 || $stmt2->num_rows > 0;
     }
 }

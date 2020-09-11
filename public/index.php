@@ -886,13 +886,96 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(402);
+            }
+        }
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(422);
+    });
+
+//Get items for staff menu
+$app->get('/getitemsforstaffmenu', function (Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $items = $db->getItemsForStaffMenu();
+
+    return $response
+        ->withJson($items)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+//Add menu item
+$app->post('/addmenuitem', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array(
+        'itemTitle', 'itemPriceDouble', 'milkOption', 'sugarOption',
+        'decafOption', 'extrasOption', 'frappeOption', 'heatedOption', 'itemType', 'itemTimeInt'
+    ), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $itemTitle = $request_data['itemTitle'];
+        $itemShortDesc = $request_data['itemShortDesc'];
+        $itemPriceDouble = $request_data['itemPriceDouble'];
+        $milkOption = $request_data['milkOption'];
+        $sugarOption = $request_data['sugarOption'];
+        $decafOption = $request_data['decafOption'];
+        $extrasOption = $request_data['extrasOption'];
+        $frappeOption = $request_data['frappeOption'];
+        $heatedOption = $request_data['heatedOption'];
+        $itemType = $request_data['itemType'];
+        $itemTimeInt = $request_data['itemTimeInt'];
+
+        $db = new DbOperations;
+
+        $result = $db->addMenuItem(
+            $itemTitle,
+            $itemShortDesc,
+            $itemPriceDouble,
+            $milkOption,
+            $sugarOption,
+            $decafOption,
+            $extrasOption,
+            $frappeOption,
+            $heatedOption,
+            $itemType,
+            $itemTimeInt
+        );
+
+        if ($result == ITEM_ADDED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item added to list';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+            
+        } else if ($result == ITEM_FAILED_TO_ADD) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item failed to add to list';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+            
+        } else if ($result == ITEM_TITLE_EXISTS) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item title already in list';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(403);
         }
     }
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
 });
-
 
 $app->get('/getorderstatus', function (Request $request, Response $response) {
 
@@ -1337,5 +1420,75 @@ $app->post('/updateorderstatustocomplete', function (Request $request, Response 
 });
 
 
+//modify menu item
+$app->post('/modifymenuitem', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array(
+        'itemID', 'itemTitle', 'itemPriceDouble', 'milkOption', 'sugarOption',
+        'decafOption', 'extrasOption', 'frappeOption', 'heatedOption', 'itemType', 'itemTimeInt'
+    ), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $itemID = $request_data['itemID'];
+        $itemTitle = $request_data['itemTitle'];
+        $itemShortDesc = $request_data['itemShortDesc'];
+        $itemPriceDouble = $request_data['itemPriceDouble'];
+        $milkOption = $request_data['milkOption'];
+        $sugarOption = $request_data['sugarOption'];
+        $decafOption = $request_data['decafOption'];
+        $extrasOption = $request_data['extrasOption'];
+        $frappeOption = $request_data['frappeOption'];
+        $heatedOption = $request_data['heatedOption'];
+        $itemType = $request_data['itemType'];
+        $itemTimeInt = $request_data['itemTimeInt'];
+
+        $db = new DbOperations;
+
+        $result = $db->modifyMenuItem(
+            $itemID,
+            $itemTitle,
+            $itemShortDesc,
+            $itemPriceDouble,
+            $milkOption,
+            $sugarOption,
+            $decafOption,
+            $extrasOption,
+            $frappeOption,
+            $heatedOption,
+            $itemType,
+            $itemTimeInt
+        );
+
+        if ($result == ITEM_MODIFIED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item was modified';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == ITEM_MODIFIED_FAILED) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Item failed to modify';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        } else if ($result == ITEM_TITLE_EXISTS) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item title already in list';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(403);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
 
 $app->run();
