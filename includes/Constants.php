@@ -3,7 +3,7 @@
     define('DB_HOST', 'localhost');
     define('DB_USER', 'root');
     define('DB_PASSWORD', '');
-    DEFINE('DB_NAME', 'beverage_db');
+    define('DB_NAME', 'beverage_db');
 
     define('USER_CREATED', 201);
     define('USER_EXISTS', 403);
@@ -82,3 +82,6 @@
 
     define("ITEM_MODIFIED", 201);
     define("ITEM_MODIFIED_FAILED", 402);
+
+    define("INVENTORY_ITEM_UPDATED", 201);
+    define("UPDATE_INVENTORY_ITEM_FAILED", 402);

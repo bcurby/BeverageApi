@@ -1268,4 +1268,18 @@ class DbOperations
 
         return $stmt->num_rows > 1 || $stmt2->num_rows > 0;
     }
+
+    
+    // CAFE SIDE - Update inventory item stock level
+    public function updateInventoryItemStock($itemID, $itemStock)
+    {
+
+        $stmt = $this->con->prepare("UPDATE items SET itemStock = ?  WHERE id = ?");
+        $stmt->bind_param("ss", $itemStock, $itemID);
+
+        if ($stmt->execute()) {
+            return INVENTORY_ITEM_UPDATED;
+        }
+        return UPDATE_INVENTORY_ITEM_FAILED;
+    }
 }

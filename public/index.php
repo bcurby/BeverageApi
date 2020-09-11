@@ -1512,4 +1512,42 @@ $app->post('/modifymenuitem', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+
+//updates a stock level for an item in inventory
+$app->post('/updateinventoryitemstock', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array('itemID', 'itemStock'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $itemID = $request_data['itemID'];
+        $itemStock = $request_data['itemStock'];
+
+        $db = new DbOperations;
+
+
+        $result = $db->updateInventoryItemStock($itemID, $itemStock);
+
+        if ($result == INVENTORY_ITEM_UPDATED) {
+            $message['error'] = false;
+            $message['message'] = 'Inventory item updated';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result = UPDATE_INVENTORY_ITEM_FAILED) {
+
+            $message['error'] = true;
+            $message['message'] = 'There was a problem updating inventory';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
 $app->run();
