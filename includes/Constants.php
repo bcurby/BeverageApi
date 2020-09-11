@@ -52,21 +52,30 @@
 	define("ORDER_RECORDED", 201);
 	define("ORDER_RECORDED_FAILED", 402);
 
+    define("ORDER_FOUND", 201);
+    define("ORDER_NOT_FOUND", 402);
+
+    define("NOTIFICATION_SENT", 201);
+    define("NOTIFICATION_FAILED", 402);
+
 	define("ORDER_DELETED", 201);
 	define("ORDER_DELETED_FAILED", 402);
-	
+
 	define("STAFF_QUEUE_DELETED", 201);
 	define("STAFF_QUEUE_DELETED_FAILED", 402);
-	
+
 	define("UPDATED_ITEM_STATUS", 201);
 	define("UPDATED_ITEM_STATUS_FAILED", 402);
-	
-	define("ITEM_STATUS_RECIEVED", 201);
-	define("ITEM_STATUS_NOT_RECIEVED", 402);
 
+	define("ITEM_STATUS_RECIEVED", 201);
+    define("ITEM_STATUS_NOT_RECIEVED", 402);
+    
     define("DELETE_CART_ITEM_PASSED", 201);
     define("DELETE_CART_ITEM_FAILED", 402);
 
+    define("ORDER_COMPLETED", 200);
+    define("ORDER_COMPLETED_FAILED", 402);
+    
     define("ITEM_ADDED", 201);
     define("ITEM_FAILED_TO_ADD", 402);
     define("ITEM_TITLE_EXISTS", 403);
