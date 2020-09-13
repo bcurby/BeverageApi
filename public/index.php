@@ -471,39 +471,45 @@ $app->get('/getorderitems', function (Request $request, Response $response) {
 //Creates a new delivery entry
 $app->post('/bookdelivery', function (Request $request, Response $response) {
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('userID', 'firstName', 'phone', 'streetName'), $request, $response)) {
 
-    $userID = $request_data['userID'];
-    $firstName = $request_data['firstName'];
-    $phone = $request_data['phone'];
-    $streetUnit = $request_data['streetUnit'];
-    $streetName = $request_data['streetName'];
+        $request_data = $request->getParsedBody();
 
-    $db = new DbOperations;
+        $userID = $request_data['userID'];
+        $firstName = $request_data['firstName'];
+        $phone = $request_data['phone'];
+        $streetUnit = $request_data['streetUnit'];
+        $streetName = $request_data['streetName'];
 
-    $result = $db->bookDelivery($userID, $firstName, $phone, $streetUnit, $streetName);
+        $db = new DbOperations;
 
-    if ($result == DELIVERY_CREATED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Delivery Submitted';
+        $result = $db->bookDelivery($userID, $firstName, $phone, $streetUnit, $streetName);
 
-        $response->write(json_encode($message));
+        if ($result == DELIVERY_CREATED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Delivery Submitted';
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == DELIVERY_FAILED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Delivery Failed';
+            $response->write(json_encode($message));
 
-        $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == DELIVERY_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Delivery Failed';
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(422);
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
     }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
