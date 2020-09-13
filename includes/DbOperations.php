@@ -219,11 +219,11 @@ class DbOperations
 
 
     //Creates a new delivery
-    public function bookDelivery($userID, $streetNumber, $streetName)
+    public function bookDelivery($userID, $streetUnit, $streetName)
     {
         $cartID = $this->getCartIDByUserID($userID);
-        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, cartID, streetNumber, streetName, deliveryStatus) VALUES (?, ?, ?, ?, 1)");
-        $stmt->bind_param("ssss", $userID, $cartID, $streetNumber, $streetName);
+        $stmt = $this->con->prepare("INSERT INTO deliveries (userID, cartID, streetUnit, streetName, deliveryStatus) VALUES (?, ?, ?, ?, 1)");
+        $stmt->bind_param("ssss", $userID, $cartID, $streetUnit, $streetName);
         if ($stmt->execute()) {
             return DELIVERY_CREATED;
         } else {
@@ -299,7 +299,7 @@ class DbOperations
     //Returns a user from the database using registered email address
     public function getUserByEmail($email)
     {
-        $stmt = $this->con->prepare("SELECT id, email, firstName, LastName, phone FROM users WHERE email = ?");
+        $stmt = $this->con->prepare("SELECT id, email, firstName, lastName, phone FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->bind_result($id, $email, $firstName, $lastName, $phone);
