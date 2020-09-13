@@ -474,12 +474,14 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
     $request_data = $request->getParsedBody();
 
     $userID = $request_data['userID'];
+    $firstName = $request_data['firstName'];
+    $phone = $request_data['phone'];
     $streetUnit = $request_data['streetUnit'];
     $streetName = $request_data['streetName'];
 
     $db = new DbOperations;
 
-    $result = $db->bookDelivery($userID, $streetUnit, $streetName);
+    $result = $db->bookDelivery($userID, $firstName, $phone, $streetUnit, $streetName);
 
     if ($result == DELIVERY_CREATED) {
         $message = array();
