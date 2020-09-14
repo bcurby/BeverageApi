@@ -31,7 +31,7 @@
     define("CART_EMPTY_FAILED", 402);
 
     define("DELIVERY_CREATED", 201);
-    define("DELIVERY_FAILED", 422);
+    define("DELIVERY_FAILED", 402);
     
     define("ORDER_DELIVERED", 201);
     define("MARK_ORDER_DELIVERED_FAILED", 422);
