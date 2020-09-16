@@ -1282,4 +1282,29 @@ class DbOperations
         }
         return UPDATE_INVENTORY_ITEM_FAILED;
     }
+	
+	//Creates a new staff user
+    public function createStaff($staffLevel, $firstName, $lastName)
+    {
+        if (!$this->isStaffExist($firstName, $lastName)) {
+            $stmt = $this->con->prepare("INSERT INTO staff (staffLevel, firstName, lastName) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $email, $firstName, $lastName);
+            if ($stmt->execute()) {
+                return STAFF_CREATED;
+            } else {
+                return STAFF_FAILURE;
+            }
+        }
+        return STAFF_EXISTS;
+    }
+	
+	//Check first and last name for staff record that exists in database
+    private function isStaffExist($firstName, $lastName)
+    {
+        $stmt = $this->con->prepare("SELECT id FROM staff WHERE firstName = ? AND lastName = ?");
+        $stmt->bind_param("ss", $firstName, $lastName);
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
 }

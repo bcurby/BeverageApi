@@ -1558,4 +1558,58 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
         ->withStatus(422);
 });
 
+//Creates a new staff user record
+$app->post('/createstaff', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array('staffLevel', 'firstName', 'lastName'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $staffLevel = $request_data['staffLevel'];
+        $firstName = $request_data['firstName'];
+        $lastName = $request_data['lastName'];
+
+        $db = new DbOperations;
+
+        $result = $db->createStaff($staffLevel, $firstName, $lastName);
+
+        if ($result == STAFF_CREATED) {
+
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Staff user has been created successfully';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == STAFF_FAILURE) {
+
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'An error occurred when creating staff user';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } else if ($result == STAFF_EXISTS) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Staff user Already Exists';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(403);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
 $app->run();
