@@ -1288,7 +1288,7 @@ class DbOperations
     {
         if (!$this->isStaffExist($firstName, $lastName)) {
             $stmt = $this->con->prepare("INSERT INTO staff (staffLevel, firstName, lastName) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $email, $firstName, $lastName);
+            $stmt->bind_param("sss", $staffLevel, $firstName, $lastName);
             if ($stmt->execute()) {
                 return STAFF_CREATED;
             } else {
