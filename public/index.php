@@ -1558,4 +1558,81 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
         ->withStatus(422);
 });
 
+$app->post('/saveprofile', function (Request $request, Response $response){
+
+
+    if(!haveEmptyParameters(array('userID', 'firstName', 'lastName', 'email', 'phoneNum'), $request, $response)){
+
+        $request_data = $request->getParsedBody();
+
+        $db = new DbOperations;
+
+        $userID = $request_data["userID"];
+        $firstName = $request_data["firstName"];
+        $lastName = $request_data["lastName"];
+        $email = $request_data["email"];
+        $password = $request_data["password"];
+        $hash_password = password_hash($password, PASSWORD_DEFAULT);
+        $phoneNum = $request_data["phoneNum"];
+
+        $result = $db->saveAccountChanges($userID, $firstName, $lastName, $email, $hash_password, $phoneNum);
+
+        if($result == ACCOUNT_SAVED){
+
+            $message['error'] = false;
+            $message['message'] = 'User account has been updated';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+
+        }elseif ($result == ACCOUNT_UPDATE_FAILED){
+
+            $message['error'] = true;
+            $message['message'] = 'There was a problem updating account';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+
+});
+
+$app->post("/deleteuser", function (Request $request, Response $response){
+
+    $request_data = $request->getParsedBody();
+
+    $db = new DbOperations;
+
+    $userID = $request_data["userID"];
+
+    $result = $db->deleteAccount($userID);
+
+    if($result == DELETE_SUCCESSFUL){
+        $message['error'] = false;
+        $message['message'] = 'User account has been deleted';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+
+    }elseif ($result == DELETE_FAILED){
+
+        $message['error'] = true;
+        $message['message'] = 'Account not found - cant delete';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+
+});
+
 $app->run();

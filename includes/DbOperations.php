@@ -1282,4 +1282,35 @@ class DbOperations
         }
         return UPDATE_INVENTORY_ITEM_FAILED;
     }
+
+    //Customer SIDE - Saving account changes
+    public function saveAccountChanges($userID, $firstName, $lastName, $email, $hash_password, $phoneNum)
+    {
+
+        $stmt = $this->con->prepare("UPDATE users SET firstName = ?, lastName = ?, email = ?, password = ?, phone = ? WHERE id = ?");
+        $stmt->bind_param("ssssss", $firstName, $lastName, $email, $hash_password, $phoneNum, $userID);
+
+        if($stmt->execute()){
+
+            return ACCOUNT_SAVED;
+        }
+
+        return ACCOUNT_UPDATE_FAILED;
+    }
+
+    //CUSTOMER SIDE - delete account
+    public function deleteAccount($userID){
+
+        $stmt = $this->con->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->bind_param("s", $userID);
+
+        if($stmt->execute()){
+
+            return DELETE_SUCCESSFUL;
+        }
+
+        return DELETE_FAILED;
+    }
+
+
 }
