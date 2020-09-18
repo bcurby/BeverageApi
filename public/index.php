@@ -1031,7 +1031,7 @@ $app->post('/notificationSent', function (Request $request, Response $response) 
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(200);
-    } else if ($result = NOTIFICATION_FAILED) {
+    } else if ($result == NOTIFICATION_FAILED) {
 
         $message['error'] = true;
         $message['message'] = 'Notification has failed to send';
@@ -1433,7 +1433,7 @@ $app->post('/updateorderstatustocomplete', function (Request $request, Response 
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(200);
-        } else if ($result = ORDER_COMPLETED_FAILED) {
+        } else if ($result == ORDER_COMPLETED_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'There was a problem completing order';
@@ -1543,7 +1543,7 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-        } else if ($result = UPDATE_INVENTORY_ITEM_FAILED) {
+        } else if ($result == UPDATE_INVENTORY_ITEM_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'There was a problem updating inventory';

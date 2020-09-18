@@ -1286,7 +1286,7 @@ class DbOperations
 	//Creates a new staff user
     public function createStaff($staffLevel, $firstName, $lastName)
     {
-        if (!$this->isStaffExist($firstName, $lastName)) {
+        if (!$this->isStaffNameExist($firstName, $lastName)) {
             $stmt = $this->con->prepare("INSERT INTO staff (staffLevel, firstName, lastName) VALUES (?, ?, ?)");
             $stmt->bind_param("sss", $staffLevel, $firstName, $lastName);
             if ($stmt->execute()) {
@@ -1299,7 +1299,7 @@ class DbOperations
     }
 	
 	//Check first and last name for staff record that exists in database
-    private function isStaffExist($firstName, $lastName)
+    private function isStaffNameExist($firstName, $lastName)
     {
         $stmt = $this->con->prepare("SELECT id FROM staff WHERE firstName = ? AND lastName = ?");
         $stmt->bind_param("ss", $firstName, $lastName);
