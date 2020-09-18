@@ -1301,7 +1301,7 @@ class DbOperations
 	//Check first and last name for staff record that exists in database
     private function isStaffNameExist($firstName, $lastName)
     {
-        $stmt = $this->con->prepare("SELECT id FROM staff WHERE firstName = ? AND lastName = ?");
+        $stmt = $this->con->prepare("SELECT * FROM staff WHERE firstName = ? AND lastName = ?");
         $stmt->bind_param("ss", $firstName, $lastName);
         $stmt->execute();
         $stmt->store_result();
