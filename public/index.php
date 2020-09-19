@@ -1641,9 +1641,10 @@ $app->post("/savepassword", function (Request $request, Response $response){
 
     $userID = $request_data["userID"];
     $password = $request_data["password"];
+
     $hash_password = password_hash($password, PASSWORD_DEFAULT);
 
-    $result = $db->saveNewPassword($userID, $hash_password);
+    $result = $db->saveNewPassword($hash_password, $userID);
 
     if ($result == PASSWORD_SAVED){
 

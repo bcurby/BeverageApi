@@ -1311,13 +1311,13 @@ class DbOperations
 
         return DELETE_FAILED;
     }
-
-    public function saveNewPassword($userID, $hash_password){
+//Customer size save new password
+    public function saveNewPassword($hash_password, $userID){
 
         $stmt = $this->con->prepare("UPDATE users SET password = ? WHERE id =?");
-        $stmt->bind_param("ss", $userID, $hash_password);
+        $stmt->bind_param("ss", $hash_password, $userID);
 
-        if($stmt->execute){
+        if($stmt->execute()){
 
             return PASSWORD_SAVED;
         }
