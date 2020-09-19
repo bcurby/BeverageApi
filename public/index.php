@@ -1612,4 +1612,17 @@ $app->post('/createstaff', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+//Get List of Staff users
+$app->get('/getstaff', function (Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $staff = $db->getStaffList();
+
+    return $response
+        ->withJson($staff)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
 $app->run();

@@ -1307,4 +1307,27 @@ class DbOperations
         $stmt->store_result();
         return $stmt->num_rows > 0;
     }
+	
+	//Returns staff list
+	public function getStaffList()
+	{
+		$stmt = $this->con->prepare("SELECT 'staffID', 'firstName', 'lastName', 'staffLevel' FROM staff");
+		$stmt->execute();
+		$stmt->bind_result($staffID, $firstName, $lastName, $staffLevel);
+
+        $staff = array();
+
+        while ($stmt->fetch()) {
+            $temp = array();
+
+            $temp['staffID'] = $staffID;
+            $temp['firstName'] = $firstName;
+            $temp['lastName'] = $lastName;
+            $temp['staffLevel'] = $staffLevel;
+
+
+            array_push($staff, $temp);
+        }
+        return $staff;
+	}
 }
