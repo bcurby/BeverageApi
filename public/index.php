@@ -1571,11 +1571,9 @@ $app->post('/saveprofile', function (Request $request, Response $response){
         $firstName = $request_data["firstName"];
         $lastName = $request_data["lastName"];
         $email = $request_data["email"];
-        $password = $request_data["password"];
-        $hash_password = password_hash($password, PASSWORD_DEFAULT);
         $phoneNum = $request_data["phoneNum"];
 
-        $result = $db->saveAccountChanges($userID, $firstName, $lastName, $email, $hash_password, $phoneNum);
+        $result = $db->saveAccountChanges($userID, $firstName, $lastName, $email, $phoneNum);
 
         if($result == ACCOUNT_SAVED){
 
@@ -1634,5 +1632,43 @@ $app->post("/deleteuser", function (Request $request, Response $response){
         ->withStatus(422);
 
 });
+
+$app->post("/savepassword", function (Request $request, Response $response){
+
+    $request_data = $request->getParsedBody();
+
+    $db = new DbOperations;
+
+    $userID = $request_data["userID"];
+    $password = $request_data["password"];
+    $hash_password = password_hash($password, PASSWORD_DEFAULT);
+
+    $result = $db->saveNewPassword($userID, $hash_password);
+
+    if ($result == PASSWORD_SAVED){
+
+        $message['error'] = false;
+        $message['message'] = 'New Password Saved';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+
+    }elseif($result == SAVE_FAILED){
+
+        $message['error'] = true;
+        $message['message'] = 'Password cannot be saved';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+
+});
+
 
 $app->run();

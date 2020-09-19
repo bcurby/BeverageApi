@@ -1284,11 +1284,11 @@ class DbOperations
     }
 
     //Customer SIDE - Saving account changes
-    public function saveAccountChanges($userID, $firstName, $lastName, $email, $hash_password, $phoneNum)
+    public function saveAccountChanges($userID, $firstName, $lastName, $email, $phoneNum)
     {
 
-        $stmt = $this->con->prepare("UPDATE users SET firstName = ?, lastName = ?, email = ?, password = ?, phone = ? WHERE id = ?");
-        $stmt->bind_param("ssssss", $firstName, $lastName, $email, $hash_password, $phoneNum, $userID);
+        $stmt = $this->con->prepare("UPDATE users SET firstName = ?, lastName = ?, email = ?, phone = ? WHERE id = ?");
+        $stmt->bind_param("sssss", $firstName, $lastName, $email, $phoneNum, $userID);
 
         if($stmt->execute()){
 
@@ -1310,6 +1310,19 @@ class DbOperations
         }
 
         return DELETE_FAILED;
+    }
+
+    public function saveNewPassword($userID, $hash_password){
+
+        $stmt = $this->con->prepare("UPDATE users SET password = ? WHERE id =?");
+        $stmt->bind_param("ss", $userID, $hash_password);
+
+        if($stmt->execute){
+
+            return PASSWORD_SAVED;
+        }
+        return SAVE_FAILED;
+
     }
 
 

@@ -91,3 +91,6 @@
 
     define("DELETE_SUCCESSFUL", 201);
     define("DELETE_FAILED", 402);
+
+    define("PASSWORD_SAVED", 201);
+    define("SAVE_FAILED", 402);
