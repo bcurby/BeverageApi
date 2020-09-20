@@ -1311,7 +1311,7 @@ class DbOperations
 	//Returns staff list
 	public function getStaffList()
 	{
-		$stmt = $this->con->prepare("SELECT 'staffID', 'firstName', 'lastName', 'staffLevel' FROM staff");
+		$stmt = $this->con->prepare("SELECT staffID, firstName, lastName, staffLevel FROM staff");
 		$stmt->execute();
 		$stmt->bind_result($staffID, $firstName, $lastName, $staffLevel);
 
