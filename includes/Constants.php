@@ -94,3 +94,10 @@
 
     define("PASSWORD_SAVED", 201);
     define("SAVE_FAILED", 402);
+    
+	define('STAFF_CREATED', 201);
+    define('STAFF_EXISTS', 403);
+    define('STAFF_FAILURE', 422); 
+
+    define('STAFF_MEMBER_DELETED', 201);
+    define('STAFF_MEMBER_DELETE_FAILED', 402);

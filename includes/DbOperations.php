@@ -1326,4 +1326,65 @@ class DbOperations
     }
 
 
+	
+	//Creates a new staff user
+    public function createStaff($staffLevel, $firstName, $lastName)
+    {
+        if (!$this->isStaffNameExist($firstName, $lastName)) {
+            $stmt = $this->con->prepare("INSERT INTO staff (staffLevel, firstName, lastName) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $staffLevel, $firstName, $lastName);
+            if ($stmt->execute()) {
+                return STAFF_CREATED;
+            } else {
+                return STAFF_FAILURE;
+            }
+        }
+        return STAFF_EXISTS;
+    }
+	
+	//Check first and last name for staff record that exists in database
+    private function isStaffNameExist($firstName, $lastName)
+    {
+        $stmt = $this->con->prepare("SELECT * FROM staff WHERE firstName = ? AND lastName = ?");
+        $stmt->bind_param("ss", $firstName, $lastName);
+        $stmt->execute();
+        $stmt->store_result();
+        return $stmt->num_rows > 0;
+    }
+	
+	//Returns staff list
+	public function getStaffList()
+	{
+		$stmt = $this->con->prepare("SELECT staffID, firstName, lastName, staffLevel FROM staff");
+		$stmt->execute();
+		$stmt->bind_result($staffID, $firstName, $lastName, $staffLevel);
+
+        $staff = array();
+
+        while ($stmt->fetch()) {
+            $temp = array();
+
+            $temp['staffID'] = $staffID;
+            $temp['firstName'] = $firstName;
+            $temp['lastName'] = $lastName;
+            $temp['staffLevel'] = $staffLevel;
+
+
+            array_push($staff, $temp);
+        }
+        return $staff;
+    }
+    
+
+    //Delete Staff member from staff table
+    public function deleteStaff($staffID) {
+
+        $stmt = $this->con->prepare("DELETE FROM staff WHERE staffID = ?");
+        $stmt->bind_param("s", $staffID);
+        if ($stmt->execute()) {
+            return STAFF_MEMBER_DELETED;
+        } else {
+            return STAFF_MEMBER_DELETE_FAILED;
+        }
+    }
 }
