@@ -1625,4 +1625,40 @@ $app->get('/getstaff', function (Request $request, Response $response) {
         ->withStatus(200);
 });
 
+//Delete staff member from staff table
+$app->post('/deletestaff', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array('staffID'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $staffID = $request_data['staffID'];
+
+        $db = new DbOperations;
+
+        $result = $db->deleteStaff($staffID);
+
+        if ($result == STAFF_MEMBER_DELETED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Staff member deleted';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == STAFF_MEMBER_DELETE_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Staff member has failed to delete';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(422);
+});
+
 $app->run();

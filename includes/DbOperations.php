@@ -1329,5 +1329,18 @@ class DbOperations
             array_push($staff, $temp);
         }
         return $staff;
-	}
+    }
+    
+
+    //Delete Staff member from staff table
+    public function deleteStaff($staffID) {
+
+        $stmt = $this->con->prepare("DELETE FROM staff WHERE staffID = ?");
+        $stmt->bind_param("s", $staffID);
+        if ($stmt->execute()) {
+            return STAFF_MEMBER_DELETED;
+        } else {
+            return STAFF_MEMBER_DELETE_FAILED;
+        }
+    }
 }
