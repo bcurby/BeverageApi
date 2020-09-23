@@ -1685,9 +1685,9 @@ $app->post("/deleteuser", function (Request $request, Response $response){
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(402);
-            }
         }
-        return $response
+    }
+    return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
 
@@ -1696,35 +1696,37 @@ $app->post("/deleteuser", function (Request $request, Response $response){
 
 $app->post("/savepassword", function (Request $request, Response $response){
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('userID', 'password'), $request, $response)) {
 
-    $db = new DbOperations;
+        $request_data = $request->getParsedBody();
 
-    $userID = $request_data["userID"];
-    $password = $request_data["password"];
+        $db = new DbOperations;
 
-    $hash_password = password_hash($password, PASSWORD_DEFAULT);
+        $userID = $request_data["userID"];
+        $password = $request_data["password"];
 
-    $result = $db->saveNewPassword($hash_password, $userID);
+        $hash_password = password_hash($password, PASSWORD_DEFAULT);
 
-    if ($result == PASSWORD_SAVED){
+        $result = $db->saveNewPassword($hash_password, $userID);
 
-        $message['error'] = false;
-        $message['message'] = 'New Password Saved';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
+        if ($result == PASSWORD_SAVED){
 
-    }elseif($result == SAVE_FAILED){
+            $message['error'] = false;
+            $message['message'] = 'New Password Saved';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
 
-        $message['error'] = true;
-        $message['message'] = 'Password cannot be saved';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
+        }elseif($result == SAVE_FAILED){
 
+            $message['error'] = true;
+            $message['message'] = 'Password cannot be saved';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
     }
     return $response
         ->withHeader('Content-type', 'application/json')
