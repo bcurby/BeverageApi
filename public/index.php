@@ -1659,32 +1659,35 @@ $app->post('/createstaff', function (Request $request, Response $response) {
 
 $app->post("/deleteuser", function (Request $request, Response $response){
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('staffLevel', 'firstName', 'lastName'), $request, $response)) {
 
-    $db = new DbOperations;
+        $request_data = $request->getParsedBody();
 
-    $userID = $request_data["userID"];
+        $db = new DbOperations;
 
-    $result = $db->deleteAccount($userID);
+        $userID = $request_data["userID"];
 
-    if($result == DELETE_SUCCESSFUL){
-        $message['error'] = false;
-        $message['message'] = 'User account has been deleted';
-        $response->write(json_encode($message));
+        $result = $db->deleteAccount($userID);
+
+        if($result == DELETE_SUCCESSFUL){
+            $message['error'] = false;
+            $message['message'] = 'User account has been deleted';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+
+        }elseif ($result == DELETE_FAILED){
+
+            $message['error'] = true;
+            $message['message'] = 'Account not found - cant delete';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+            }
+        }
         return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-
-    }elseif ($result == DELETE_FAILED){
-
-        $message['error'] = true;
-        $message['message'] = 'Account not found - cant delete';
-        $response->write(json_encode($message));
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
-    }
-    return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
 
