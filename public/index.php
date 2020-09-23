@@ -1659,7 +1659,7 @@ $app->post('/createstaff', function (Request $request, Response $response) {
 
 $app->post("/deleteuser", function (Request $request, Response $response){
 
-    if (!haveEmptyParameters(array('staffLevel', 'firstName', 'lastName'), $request, $response)) {
+    if (!haveEmptyParameters(array('userID'), $request, $response)) {
 
         $request_data = $request->getParsedBody();
 
