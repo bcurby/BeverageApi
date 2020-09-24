@@ -261,9 +261,6 @@ class DbOperations
 
             $orderTime = $this->getCartTime($cartID);
 
-            $stmt3 = $this->con->prepare("UPDATE users SET orderStatus = 1 WHERE id = ?");
-            $stmt3->bind_param("s", $userID);
-
             $stmt4 = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff, orderTime)
                 VALUES (?, ?, ?, ?, 1, 0, ?)");
             $stmt4->bind_param("sssss", $cartID, $userID, $orderTotal, $deliveryStatus, $orderTime);
@@ -271,7 +268,7 @@ class DbOperations
             $stmt5 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
             $stmt5->bind_param("s", $cartID);
 
-            if ($stmt3->execute() && $stmt4->execute() && $stmt5->execute()) {
+            if ($stmt4->execute() && $stmt5->execute()) {
                 return ORDER_PLACED;
             }
             return ORDER_FAILED;
@@ -1282,6 +1279,50 @@ class DbOperations
         }
         return UPDATE_INVENTORY_ITEM_FAILED;
     }
+
+    //Customer SIDE - Saving account changes
+    public function saveAccountChanges($userID, $firstName, $lastName, $email, $phoneNum)
+    {
+
+        $stmt = $this->con->prepare("UPDATE users SET firstName = ?, lastName = ?, email = ?, phone = ? WHERE id = ?");
+        $stmt->bind_param("sssss", $firstName, $lastName, $email, $phoneNum, $userID);
+
+        if($stmt->execute()){
+
+            return ACCOUNT_SAVED;
+        }
+
+        return ACCOUNT_UPDATE_FAILED;
+    }
+
+    //CUSTOMER SIDE - delete account
+    public function deleteAccount($userID){
+
+        $stmt = $this->con->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->bind_param("s", $userID);
+
+        if($stmt->execute()){
+
+            return DELETE_SUCCESSFUL;
+        }
+
+        return DELETE_FAILED;
+    }
+//Customer size save new password
+    public function saveNewPassword($hash_password, $userID){
+
+        $stmt = $this->con->prepare("UPDATE users SET password = ? WHERE id =?");
+        $stmt->bind_param("ss", $hash_password, $userID);
+
+        if($stmt->execute()){
+
+            return PASSWORD_SAVED;
+        }
+        return SAVE_FAILED;
+
+    }
+
+
 	
 	//Creates a new staff user
     public function createStaff($staffLevel, $firstName, $lastName)

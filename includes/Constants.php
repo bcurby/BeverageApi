@@ -86,6 +86,15 @@
     define("INVENTORY_ITEM_UPDATED", 201);
     define("UPDATE_INVENTORY_ITEM_FAILED", 402);
 
+    define("ACCOUNT_UPDATE_FAILED", 402);
+    define("ACCOUNT_SAVED", 201);
+
+    define("DELETE_SUCCESSFUL", 201);
+    define("DELETE_FAILED", 402);
+
+    define("PASSWORD_SAVED", 201);
+    define("SAVE_FAILED", 402);
+    
 	define('STAFF_CREATED', 201);
     define('STAFF_EXISTS', 403);
     define('STAFF_FAILURE', 422); 

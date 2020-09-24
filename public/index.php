@@ -99,7 +99,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
     $orderTotal = $request_data['orderTotal'];
 
 
-    if (!haveEmptyParameters(array('userID', 'orderTotal'), $request, $response)) {
+    if (!haveEmptyParameters(array('userID', 'deliveryStatus', 'orderTotal'), $request, $response)) {
 
         $db = new DbOperations;
 
@@ -1558,6 +1558,49 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
         ->withStatus(422);
 });
 
+
+//Save user update changes
+$app->post('/saveprofile', function (Request $request, Response $response){
+
+    if(!haveEmptyParameters(array('userID', 'firstName', 'lastName', 'email', 'phoneNum'), $request, $response)){
+
+        $request_data = $request->getParsedBody();
+
+        $db = new DbOperations;
+
+        $userID = $request_data["userID"];
+        $firstName = $request_data["firstName"];
+        $lastName = $request_data["lastName"];
+        $email = $request_data["email"];
+        $phoneNum = $request_data["phoneNum"];
+
+        $result = $db->saveAccountChanges($userID, $firstName, $lastName, $email, $phoneNum);
+
+        if($result == ACCOUNT_SAVED){
+
+            $message['error'] = false;
+            $message['message'] = 'User account has been updated';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+
+        }elseif ($result == ACCOUNT_UPDATE_FAILED){
+
+            $message['error'] = true;
+            $message['message'] = 'There was a problem updating account';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
+
 //Creates a new staff user record
 $app->post('/createstaff', function (Request $request, Response $response) {
 
@@ -1610,7 +1653,87 @@ $app->post('/createstaff', function (Request $request, Response $response) {
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
+
 });
+
+
+$app->post("/deleteuser", function (Request $request, Response $response){
+
+    if (!haveEmptyParameters(array('userID'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $db = new DbOperations;
+
+        $userID = $request_data["userID"];
+
+        $result = $db->deleteAccount($userID);
+
+        if($result == DELETE_SUCCESSFUL){
+            $message['error'] = false;
+            $message['message'] = 'User account has been deleted';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+
+        }elseif ($result == DELETE_FAILED){
+
+            $message['error'] = true;
+            $message['message'] = 'Account not found - cant delete';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+
+});
+
+
+$app->post("/savepassword", function (Request $request, Response $response){
+
+    if (!haveEmptyParameters(array('userID', 'password'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $db = new DbOperations;
+
+        $userID = $request_data["userID"];
+        $password = $request_data["password"];
+
+        $hash_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $result = $db->saveNewPassword($hash_password, $userID);
+
+        if ($result == PASSWORD_SAVED){
+
+            $message['error'] = false;
+            $message['message'] = 'New Password Saved';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+
+        }elseif($result == SAVE_FAILED){
+
+            $message['error'] = true;
+            $message['message'] = 'Password cannot be saved';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+
+});
+
 
 //Get List of Staff users
 $app->get('/getstaff', function (Request $request, Response $response) {
@@ -1624,6 +1747,7 @@ $app->get('/getstaff', function (Request $request, Response $response) {
         ->withHeader('Content-type', 'application/json')
         ->withStatus(200);
 });
+
 
 //Delete staff member from staff table
 $app->post('/deletestaff', function (Request $request, Response $response) {
@@ -1656,9 +1780,9 @@ $app->post('/deletestaff', function (Request $request, Response $response) {
                 ->withStatus(402);
         }
     }
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(422);
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 $app->run();
