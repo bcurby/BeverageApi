@@ -1031,7 +1031,7 @@ $app->post('/notificationSent', function (Request $request, Response $response) 
         return $response
             ->withHeader('Content-type', 'application/json')
             ->withStatus(200);
-    } else if ($result = NOTIFICATION_FAILED) {
+    } else if ($result == NOTIFICATION_FAILED) {
 
         $message['error'] = true;
         $message['message'] = 'Notification has failed to send';
@@ -1433,7 +1433,7 @@ $app->post('/updateorderstatustocomplete', function (Request $request, Response 
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(200);
-        } else if ($result = ORDER_COMPLETED_FAILED) {
+        } else if ($result == ORDER_COMPLETED_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'There was a problem completing order';
@@ -1543,7 +1543,7 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-        } else if ($result = UPDATE_INVENTORY_ITEM_FAILED) {
+        } else if ($result == UPDATE_INVENTORY_ITEM_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'There was a problem updating inventory';
@@ -1556,6 +1556,109 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
+});
+
+//Creates a new staff user record
+$app->post('/createstaff', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array('staffLevel', 'firstName', 'lastName'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $staffLevel = $request_data['staffLevel'];
+        $firstName = $request_data['firstName'];
+        $lastName = $request_data['lastName'];
+
+        $db = new DbOperations;
+
+        $result = $db->createStaff($staffLevel, $firstName, $lastName);
+
+        if ($result == STAFF_CREATED) {
+
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Staff user has been created successfully';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == STAFF_FAILURE) {
+
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'An error occurred when creating staff user';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        } else if ($result == STAFF_EXISTS) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Staff user Already Exists';
+
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(403);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
+//Get List of Staff users
+$app->get('/getstaff', function (Request $request, Response $response) {
+
+    $db = new DbOperations;
+
+    $staff = $db->getStaffList();
+
+    return $response
+        ->withJson($staff)
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(200);
+});
+
+//Delete staff member from staff table
+$app->post('/deletestaff', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array('staffID'), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $staffID = $request_data['staffID'];
+
+        $db = new DbOperations;
+
+        $result = $db->deleteStaff($staffID);
+
+        if ($result == STAFF_MEMBER_DELETED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Staff member deleted';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == STAFF_MEMBER_DELETE_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Staff member has failed to delete';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
+    }
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(422);
 });
 
 $app->run();
