@@ -99,7 +99,7 @@ $app->post('/placeorder', function (Request $request, Response $response) {
     $orderTotal = $request_data['orderTotal'];
 
 
-    if (!haveEmptyParameters(array('userID', 'orderTotal'), $request, $response)) {
+    if (!haveEmptyParameters(array('userID', 'deliveryStatus', 'orderTotal'), $request, $response)) {
 
         $db = new DbOperations;
 
