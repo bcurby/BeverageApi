@@ -261,9 +261,6 @@ class DbOperations
 
             $orderTime = $this->getCartTime($cartID);
 
-            $stmt3 = $this->con->prepare("UPDATE users SET orderStatus = 1 WHERE id = ?");
-            $stmt3->bind_param("s", $userID);
-
             $stmt4 = $this->con->prepare("INSERT INTO orders (cartID, userID, orderTotal, deliveryStatus, orderStatus, assignedStaff, orderTime)
                 VALUES (?, ?, ?, ?, 1, 0, ?)");
             $stmt4->bind_param("sssss", $cartID, $userID, $orderTotal, $deliveryStatus, $orderTime);
@@ -271,7 +268,7 @@ class DbOperations
             $stmt5 = $this->con->prepare("UPDATE cart SET cartStatus = 0 WHERE cartID = ?");
             $stmt5->bind_param("s", $cartID);
 
-            if ($stmt3->execute() && $stmt4->execute() && $stmt5->execute()) {
+            if ($stmt4->execute() && $stmt5->execute()) {
                 return ORDER_PLACED;
             }
             return ORDER_FAILED;
