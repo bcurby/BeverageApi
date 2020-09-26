@@ -456,11 +456,11 @@ class DbOperations
     //CAFE SIDE - Getting order items for each order as they are clicked
     public function getOrderItems($cartID)
     {
-        $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity, itemMilk, itemSugar, itemDecaf, 
+        $stmt = $this->con->prepare("SELECT itemID, itemTitle, itemQuantity, itemSize, itemMilk, itemSugar, itemDecaf, 
         itemVanilla, itemCaramel, itemChocolate, itemWhippedCream, itemFrappe, itemHeated, itemComment, itemStatus FROM cartitem WHERE cartID = ?");
         $stmt->bind_param("s", $cartID);
         $stmt->execute();
-        $stmt->bind_result($itemID, $itemTitle, $itemQuantity, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
+        $stmt->bind_result($itemID, $itemTitle, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
         $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemStatus);
 
         $cart = array();
@@ -471,6 +471,7 @@ class DbOperations
             $temp['itemID'] = $itemID;
             $temp['itemTitle'] = $itemTitle;
             $temp['quantity'] = $itemQuantity;
+            $temp['itemSize'] = $itemSize;
             $temp['itemMilk'] = $itemMilk;
             $temp['itemSugar'] = $itemSugar;
             $temp['itemDecaf'] = $itemDecaf;
