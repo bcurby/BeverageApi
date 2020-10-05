@@ -516,69 +516,81 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
 //Marks order as delivered in the deliveries table
 $app->post('/markdelivered', function (Request $request, Response $response) {
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('userID', 'cartID'), $request, $response)) {
 
-    $userID = $request_data['userID'];
-    $cartID = $request_data['cartID'];
+        $request_data = $request->getParsedBody();
 
-    $db = new DbOperations;
+        $userID = $request_data['userID'];
+        $cartID = $request_data['cartID'];
 
-    $result = $db->markOrderDelivered($userID, $cartID);
+        $db = new DbOperations;
 
-    if ($result == ORDER_DELIVERED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Order Delivered';
+        $result = $db->markOrderDelivered($userID, $cartID);
 
-        $response->write(json_encode($message));
+        if ($result == ORDER_DELIVERED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Order Delivered';
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == MARK_ORDER_DELIVERED_FAILED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Marking order delivered in database failed';
+            $response->write(json_encode($message));
 
-        $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == MARK_ORDER_DELIVERED_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Marking order delivered in database failed';
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(422);
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
     }
+    return $response
+    ->withHeader('Content-type', 'application/json')
+    ->withStatus(422);
 });
 
 
 //Delete menu item
 $app->post('/deletemenuitem', function (Request $request, Response $response) {
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('itemID'), $request, $response)) {
 
-    $itemID = $request_data['itemID'];
+        $request_data = $request->getParsedBody();
 
-    $db = new DbOperations;
+        $itemID = $request_data['itemID'];
 
-    $result = $db->deleteMenuItem($itemID);
+        $db = new DbOperations;
 
-    if ($result == STAFF_DELETE_ITEM_PASSED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Item Deleted';
-        $response->write(json_encode($message));
+        $result = $db->deleteMenuItem($itemID);
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == STAFF_DELETE_ITEM_FAILED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Item Failed To Delete';
-        $response->write(json_encode($message));
+        if ($result == STAFF_DELETE_ITEM_PASSED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item Deleted';
+            $response->write(json_encode($message));
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == STAFF_DELETE_ITEM_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item Failed To Delete';
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
     }
+    return $response
+    ->withHeader('Content-type', 'application/json')
+    ->withStatus(422);
 });
 
 
