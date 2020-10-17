@@ -665,7 +665,7 @@ class DbOperations
 
     //Get cartitem quantity
     public function getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
-    $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment,$itemType) {
+    $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType) {
         $stmt = $this->con->prepare("SELECT itemQuantity FROM cartitem WHERE cartID = ? AND itemID = ? AND itemSize = ? AND itemMilk = ?
          AND itemSugar = ? AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? 
          AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ? AND itemComment = ? AND itemType = ?");
@@ -1384,5 +1384,64 @@ class DbOperations
         } else {
             return STAFF_MEMBER_DELETE_FAILED;
         }
+    }
+
+
+    
+
+
+    // Update cart item quantity
+    public function updateCartItemQuantity($itemID, $itemTitle, $itemPrice, $itemQuantity, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
+    $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType, $userID) {
+        $cartID = $this->getCartIDByUserID($userID);
+
+        //get actual stock level for item
+        $itemStock = $this->getItemStock($itemID);
+
+        if ($itemType == 'food') {
+            
+            $currentQuantity = $this->getCartItemQuantity($cartID, $itemID, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, $itemCaramel, 
+            $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment, $itemType);
+
+            if ($itemQuantity >= $currentQuantity) {
+
+                $newQuantityIncrease = $itemQuantity - $currentQuantity;
+
+                if ($itemStock >= $newQuantityIncrease) {
+
+                    $newItemStock = $itemStock - $newQuantityIncrease;
+                    $stmt1 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+                    $stmt1->bind_param("ss", $newItemStock, $itemID);
+                    $stmt1->execute(); 
+
+                    $currentCartTime = $this->getCartTime($cartID);
+                    $itemTime = $this->getItemTime($itemID);
+                    $thisItemTime = $itemTime * $newQuantityIncrease;
+                    $newCartTime = $currentCartTime + $thisItemTime;
+
+                    $stmt2 = $this->con->prepare("UPDATE cart SET cartTime = ? WHERE cartID = ?");
+                    $stmt2->bind_param(
+                    "ss",
+                    $newCartTime,
+                    $cartID
+                    );
+
+                    $stmt3 = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
+                    AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
+                    AND itemComment = ?");
+                    $stmt3->bind_param(
+                        "sssssssssssssss", $itemQuantity, $cartID, $itemTitle, $itemPrice, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
+                        $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
+
+                    if ($stmt2->execute() && $stmt3->execute()) {
+                        return CART_QUANTITY_UPDATED;
+                    } else {
+                        return CART_QUANTITY_UPDATE_FAILED;
+                    }
+                } else {
+                    return NOT_ENOUGH_STOCK;
+                }
+            }
+        }      
     }
 }

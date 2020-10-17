@@ -1797,4 +1797,86 @@ $app->post('/deletestaff', function (Request $request, Response $response) {
         ->withStatus(422);
 });
 
+//Update cart item quantity
+$app->post('/updatecartitemquantity', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array(
+        'id', 'itemTitle', 'itemPrice', 'itemQuantity', 'itemSize', 'itemMilk',
+        'itemSugar', 'itemDecaf', 'itemVanilla', 'itemCaramel', 'itemChocolate', 'itemWhippedCream', 'itemFrappe', 'itemHeated',
+        'itemComment', 'itemType', 'userID'
+    ), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $itemID = $request_data['id'];
+        $itemTitle = $request_data['itemTitle'];
+        $itemPrice = $request_data['itemPrice'];
+        $itemQuantity = $request_data['itemQuantity'];
+        $itemSize = $request_data['itemSize'];
+        $itemMilk = $request_data['itemMilk'];
+        $itemSugar = $request_data['itemSugar'];
+        $itemDecaf = $request_data['itemDecaf'];
+        $itemVanilla = $request_data['itemVanilla'];
+        $itemCaramel = $request_data['itemCaramel'];
+        $itemChocolate = $request_data['itemChocolate'];
+        $itemWhippedCream = $request_data['itemWhippedCream'];
+        $itemFrappe = $request_data['itemFrappe'];
+        $itemHeated = $request_data['itemHeated'];
+        $itemComment = $request_data['itemComment'];
+        $itemType = $request_data['itemType'];
+        $userID = $request_data['userID'];
+
+        $db = new DbOperations;
+
+        $result = $db->updateCartItemQuantity(
+            $itemID,
+            $itemTitle,
+            $itemPrice,
+            $itemQuantity,
+            $itemSize,
+            $itemMilk,
+            $itemSugar,
+            $itemDecaf,
+            $itemVanilla,
+            $itemCaramel,
+            $itemChocolate,
+            $itemWhippedCream,
+            $itemFrappe,
+            $itemHeated,
+            $itemComment,
+            $itemType,
+            $userID
+        );
+
+        if ($result == CART_QUANTITY_UPDATED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Quantity updated';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == CART_QUANTITY_UPDATE_FAILED) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Quantity update failed';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        } else if ($result == NOT_ENOUGH_STOCK) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Not enough stock';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(403);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
 $app->run();

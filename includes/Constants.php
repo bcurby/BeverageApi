@@ -101,3 +101,7 @@
 
     define('STAFF_MEMBER_DELETED', 201);
     define('STAFF_MEMBER_DELETE_FAILED', 402);
+
+    define('CART_QUANTITY_UPDATED', 201);
+    define('CART_QUANTITY_UPDATE_FAILED', 402);
+    define('NOT_ENOUGH_STOCK', 403);
