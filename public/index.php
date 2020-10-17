@@ -550,8 +550,8 @@ $app->post('/markdelivered', function (Request $request, Response $response) {
         }
     }
     return $response
-    ->withHeader('Content-type', 'application/json')
-    ->withStatus(422);
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
@@ -589,8 +589,8 @@ $app->post('/deletemenuitem', function (Request $request, Response $response) {
         }
     }
     return $response
-    ->withHeader('Content-type', 'application/json')
-    ->withStatus(422);
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
@@ -703,32 +703,32 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
 
 //Add completed order to completedOrders table
 $app->post('/addcompletedorder', function (Request $request, Response $response) {
-	
-	$request_data = $request->getParsedBody();
-	
-	$orderID = $request_data['orderID'];
-	
-	$db = new DbOperations;
-	
-	$result = $db->addCompletedOrder($orderID);
-	
-	if ($result == ORDER_RECORDED) {
-		$message = array();
-		$message['error'] = false;
-		$message['message'] = 'Order added to completedOrders';
-		$response->write(json_encode($message));
-		return $response
-			->withHeader('Content-type', 'application/json')
-			->withStatus(201);
-	} else if ($result == ORDER_RECORDED_FAILED) {
-		$message = array();
-		$message['error'] = false;
-		$message['message'] = 'Order wasnt added to completedOrders';
-		$response->write(json_encode($message));
-		return $response
-			->withHeader('Content-type', 'application/json')
-			->withStatus(402);
-	}
+
+    $request_data = $request->getParsedBody();
+
+    $orderID = $request_data['orderID'];
+
+    $db = new DbOperations;
+
+    $result = $db->addCompletedOrder($orderID);
+
+    if ($result == ORDER_RECORDED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order added to completedOrders';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == ORDER_RECORDED_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order wasnt added to completedOrders';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
 });
 
 
@@ -738,7 +738,7 @@ $app->post('/deleteorder', function (Request $request, Response $response) {
     $request_data = $request->getParsedBody();
 
     $orderID = $request_data['orderID'];
-	$cartID = $request_data['cartID'];
+    $cartID = $request_data['cartID'];
 
     $db = new DbOperations;
 
@@ -917,12 +917,12 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(402);
-            }
         }
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(422);
-    });
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
 
 
 //Get items for staff menu
@@ -985,7 +985,6 @@ $app->post('/addmenuitem', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-            
         } else if ($result == ITEM_FAILED_TO_ADD) {
             $message = array();
             $message['error'] = false;
@@ -994,7 +993,6 @@ $app->post('/addmenuitem', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(402);
-            
         } else if ($result == ITEM_TITLE_EXISTS) {
             $message = array();
             $message['error'] = false;
@@ -1572,9 +1570,9 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
 
 
 //Save user update changes
-$app->post('/saveprofile', function (Request $request, Response $response){
+$app->post('/saveprofile', function (Request $request, Response $response) {
 
-    if(!haveEmptyParameters(array('userID', 'firstName', 'lastName', 'email', 'phoneNum'), $request, $response)){
+    if (!haveEmptyParameters(array('userID', 'firstName', 'lastName', 'email', 'phoneNum'), $request, $response)) {
 
         $request_data = $request->getParsedBody();
 
@@ -1588,7 +1586,7 @@ $app->post('/saveprofile', function (Request $request, Response $response){
 
         $result = $db->saveAccountChanges($userID, $firstName, $lastName, $email, $phoneNum);
 
-        if($result == ACCOUNT_SAVED){
+        if ($result == ACCOUNT_SAVED) {
 
             $message['error'] = false;
             $message['message'] = 'User account has been updated';
@@ -1596,8 +1594,7 @@ $app->post('/saveprofile', function (Request $request, Response $response){
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-
-        }elseif ($result == ACCOUNT_UPDATE_FAILED){
+        } elseif ($result == ACCOUNT_UPDATE_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'There was a problem updating account';
@@ -1665,11 +1662,10 @@ $app->post('/createstaff', function (Request $request, Response $response) {
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
-
 });
 
 
-$app->post("/deleteuser", function (Request $request, Response $response){
+$app->post("/deleteuser", function (Request $request, Response $response) {
 
     if (!haveEmptyParameters(array('userID'), $request, $response)) {
 
@@ -1681,15 +1677,14 @@ $app->post("/deleteuser", function (Request $request, Response $response){
 
         $result = $db->deleteAccount($userID);
 
-        if($result == DELETE_SUCCESSFUL){
+        if ($result == DELETE_SUCCESSFUL) {
             $message['error'] = false;
             $message['message'] = 'User account has been deleted';
             $response->write(json_encode($message));
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-
-        }elseif ($result == DELETE_FAILED){
+        } elseif ($result == DELETE_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'Account not found - cant delete';
@@ -1702,11 +1697,10 @@ $app->post("/deleteuser", function (Request $request, Response $response){
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
-
 });
 
 
-$app->post("/savepassword", function (Request $request, Response $response){
+$app->post("/savepassword", function (Request $request, Response $response) {
 
     if (!haveEmptyParameters(array('userID', 'password'), $request, $response)) {
 
@@ -1721,7 +1715,7 @@ $app->post("/savepassword", function (Request $request, Response $response){
 
         $result = $db->saveNewPassword($hash_password, $userID);
 
-        if ($result == PASSWORD_SAVED){
+        if ($result == PASSWORD_SAVED) {
 
             $message['error'] = false;
             $message['message'] = 'New Password Saved';
@@ -1729,8 +1723,7 @@ $app->post("/savepassword", function (Request $request, Response $response){
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-
-        }elseif($result == SAVE_FAILED){
+        } elseif ($result == SAVE_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'Password cannot be saved';
@@ -1743,7 +1736,6 @@ $app->post("/savepassword", function (Request $request, Response $response){
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
-
 });
 
 
