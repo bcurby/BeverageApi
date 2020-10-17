@@ -1441,6 +1441,40 @@ class DbOperations
                 } else {
                     return NOT_ENOUGH_STOCK;
                 }
+
+            //item quantity decrease    
+            } else {
+                $newQuantityDecrease = $currentQuantity - $itemQuantity;
+
+                $newItemStock = $itemStock + $newQuantityDecrease;
+                $stmt1 = $this->con->prepare("UPDATE items SET itemStock = ? WHERE id = ?");
+                $stmt1->bind_param("ss", $newItemStock, $itemID);
+                $stmt1->execute(); 
+
+                $currentCartTime = $this->getCartTime($cartID);
+                $itemTime = $this->getItemTime($itemID);
+                $thisItemTime = $itemTime * $newQuantityDecrease;
+                $newCartTime = $currentCartTime - $thisItemTime;
+
+                $stmt2 = $this->con->prepare("UPDATE cart SET cartTime = ? WHERE cartID = ?");
+                $stmt2->bind_param(
+                "ss",
+                $newCartTime,
+                $cartID
+                );
+
+                $stmt3 = $this->con->prepare("UPDATE cartitem SET itemQuantity = ? WHERE cartID = ? AND itemTitle = ? AND itemPrice = ? AND itemSize = ? AND itemMilk = ? AND itemSugar = ?
+                AND itemDecaf = ? AND itemVanilla = ? AND itemCaramel = ? AND itemChocolate = ? AND itemWhippedCream = ? AND itemFrappe = ? AND itemHeated = ?
+                AND itemComment = ?");
+                $stmt3->bind_param(
+                    "sssssssssssssss", $itemQuantity, $cartID, $itemTitle, $itemPrice, $itemSize, $itemMilk, $itemSugar, $itemDecaf, $itemVanilla, 
+                    $itemCaramel, $itemChocolate, $itemWhippedCream, $itemFrappe, $itemHeated, $itemComment);
+
+                    if ($stmt2->execute() && $stmt3->execute()) {
+                        return CART_QUANTITY_UPDATED;
+                    } else {
+                        return CART_QUANTITY_UPDATE_FAILED;
+                    }
             }
         }      
     }
