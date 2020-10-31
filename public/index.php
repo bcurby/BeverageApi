@@ -516,69 +516,81 @@ $app->post('/bookdelivery', function (Request $request, Response $response) {
 //Marks order as delivered in the deliveries table
 $app->post('/markdelivered', function (Request $request, Response $response) {
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('userID', 'cartID'), $request, $response)) {
 
-    $userID = $request_data['userID'];
-    $cartID = $request_data['cartID'];
+        $request_data = $request->getParsedBody();
 
-    $db = new DbOperations;
+        $userID = $request_data['userID'];
+        $cartID = $request_data['cartID'];
 
-    $result = $db->markOrderDelivered($userID, $cartID);
+        $db = new DbOperations;
 
-    if ($result == ORDER_DELIVERED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Order Delivered';
+        $result = $db->markOrderDelivered($userID, $cartID);
 
-        $response->write(json_encode($message));
+        if ($result == ORDER_DELIVERED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Order Delivered';
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == MARK_ORDER_DELIVERED_FAILED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Marking order delivered in database failed';
+            $response->write(json_encode($message));
 
-        $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == MARK_ORDER_DELIVERED_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Marking order delivered in database failed';
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(422);
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(422);
+        }
     }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
 //Delete menu item
 $app->post('/deletemenuitem', function (Request $request, Response $response) {
 
-    $request_data = $request->getParsedBody();
+    if (!haveEmptyParameters(array('itemID'), $request, $response)) {
 
-    $itemID = $request_data['itemID'];
+        $request_data = $request->getParsedBody();
 
-    $db = new DbOperations;
+        $itemID = $request_data['itemID'];
 
-    $result = $db->deleteMenuItem($itemID);
+        $db = new DbOperations;
 
-    if ($result == STAFF_DELETE_ITEM_PASSED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Item Deleted';
-        $response->write(json_encode($message));
+        $result = $db->deleteMenuItem($itemID);
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(201);
-    } else if ($result == STAFF_DELETE_ITEM_FAILED) {
-        $message = array();
-        $message['error'] = false;
-        $message['message'] = 'Item Failed To Delete';
-        $response->write(json_encode($message));
+        if ($result == STAFF_DELETE_ITEM_PASSED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item Deleted';
+            $response->write(json_encode($message));
 
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(402);
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == STAFF_DELETE_ITEM_FAILED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Item Failed To Delete';
+            $response->write(json_encode($message));
+
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        }
     }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
 });
 
 
@@ -691,32 +703,32 @@ $app->post('/assignstafftoorder', function (Request $request, Response $response
 
 //Add completed order to completedOrders table
 $app->post('/addcompletedorder', function (Request $request, Response $response) {
-	
-	$request_data = $request->getParsedBody();
-	
-	$orderID = $request_data['orderID'];
-	
-	$db = new DbOperations;
-	
-	$result = $db->addCompletedOrder($orderID);
-	
-	if ($result == ORDER_RECORDED) {
-		$message = array();
-		$message['error'] = false;
-		$message['message'] = 'Order added to completedOrders';
-		$response->write(json_encode($message));
-		return $response
-			->withHeader('Content-type', 'application/json')
-			->withStatus(201);
-	} else if ($result == ORDER_RECORDED_FAILED) {
-		$message = array();
-		$message['error'] = false;
-		$message['message'] = 'Order wasnt added to completedOrders';
-		$response->write(json_encode($message));
-		return $response
-			->withHeader('Content-type', 'application/json')
-			->withStatus(402);
-	}
+
+    $request_data = $request->getParsedBody();
+
+    $orderID = $request_data['orderID'];
+
+    $db = new DbOperations;
+
+    $result = $db->addCompletedOrder($orderID);
+
+    if ($result == ORDER_RECORDED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order added to completedOrders';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(201);
+    } else if ($result == ORDER_RECORDED_FAILED) {
+        $message = array();
+        $message['error'] = false;
+        $message['message'] = 'Order wasnt added to completedOrders';
+        $response->write(json_encode($message));
+        return $response
+            ->withHeader('Content-type', 'application/json')
+            ->withStatus(402);
+    }
 });
 
 
@@ -726,7 +738,7 @@ $app->post('/deleteorder', function (Request $request, Response $response) {
     $request_data = $request->getParsedBody();
 
     $orderID = $request_data['orderID'];
-	$cartID = $request_data['cartID'];
+    $cartID = $request_data['cartID'];
 
     $db = new DbOperations;
 
@@ -905,12 +917,12 @@ $app->post('/updatecartitemstatus', function (Request $request, Response $respon
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(402);
-            }
         }
-        return $response
-            ->withHeader('Content-type', 'application/json')
-            ->withStatus(422);
-    });
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
 
 
 //Get items for staff menu
@@ -973,7 +985,6 @@ $app->post('/addmenuitem', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-            
         } else if ($result == ITEM_FAILED_TO_ADD) {
             $message = array();
             $message['error'] = false;
@@ -982,7 +993,6 @@ $app->post('/addmenuitem', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(402);
-            
         } else if ($result == ITEM_TITLE_EXISTS) {
             $message = array();
             $message['error'] = false;
@@ -1560,9 +1570,9 @@ $app->post('/updateinventoryitemstock', function (Request $request, Response $re
 
 
 //Save user update changes
-$app->post('/saveprofile', function (Request $request, Response $response){
+$app->post('/saveprofile', function (Request $request, Response $response) {
 
-    if(!haveEmptyParameters(array('userID', 'firstName', 'lastName', 'email', 'phoneNum'), $request, $response)){
+    if (!haveEmptyParameters(array('userID', 'firstName', 'lastName', 'email', 'phoneNum'), $request, $response)) {
 
         $request_data = $request->getParsedBody();
 
@@ -1576,7 +1586,7 @@ $app->post('/saveprofile', function (Request $request, Response $response){
 
         $result = $db->saveAccountChanges($userID, $firstName, $lastName, $email, $phoneNum);
 
-        if($result == ACCOUNT_SAVED){
+        if ($result == ACCOUNT_SAVED) {
 
             $message['error'] = false;
             $message['message'] = 'User account has been updated';
@@ -1584,8 +1594,7 @@ $app->post('/saveprofile', function (Request $request, Response $response){
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-
-        }elseif ($result == ACCOUNT_UPDATE_FAILED){
+        } elseif ($result == ACCOUNT_UPDATE_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'There was a problem updating account';
@@ -1653,11 +1662,10 @@ $app->post('/createstaff', function (Request $request, Response $response) {
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
-
 });
 
 
-$app->post("/deleteuser", function (Request $request, Response $response){
+$app->post("/deleteuser", function (Request $request, Response $response) {
 
     if (!haveEmptyParameters(array('userID'), $request, $response)) {
 
@@ -1669,15 +1677,14 @@ $app->post("/deleteuser", function (Request $request, Response $response){
 
         $result = $db->deleteAccount($userID);
 
-        if($result == DELETE_SUCCESSFUL){
+        if ($result == DELETE_SUCCESSFUL) {
             $message['error'] = false;
             $message['message'] = 'User account has been deleted';
             $response->write(json_encode($message));
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-
-        }elseif ($result == DELETE_FAILED){
+        } elseif ($result == DELETE_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'Account not found - cant delete';
@@ -1690,11 +1697,10 @@ $app->post("/deleteuser", function (Request $request, Response $response){
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
-
 });
 
 
-$app->post("/savepassword", function (Request $request, Response $response){
+$app->post("/savepassword", function (Request $request, Response $response) {
 
     if (!haveEmptyParameters(array('userID', 'password'), $request, $response)) {
 
@@ -1709,7 +1715,7 @@ $app->post("/savepassword", function (Request $request, Response $response){
 
         $result = $db->saveNewPassword($hash_password, $userID);
 
-        if ($result == PASSWORD_SAVED){
+        if ($result == PASSWORD_SAVED) {
 
             $message['error'] = false;
             $message['message'] = 'New Password Saved';
@@ -1717,8 +1723,7 @@ $app->post("/savepassword", function (Request $request, Response $response){
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(201);
-
-        }elseif($result == SAVE_FAILED){
+        } elseif ($result == SAVE_FAILED) {
 
             $message['error'] = true;
             $message['message'] = 'Password cannot be saved';
@@ -1731,7 +1736,6 @@ $app->post("/savepassword", function (Request $request, Response $response){
     return $response
         ->withHeader('Content-type', 'application/json')
         ->withStatus(422);
-
 });
 
 
@@ -1778,6 +1782,88 @@ $app->post('/deletestaff', function (Request $request, Response $response) {
             return $response
                 ->withHeader('Content-type', 'application/json')
                 ->withStatus(402);
+        }
+    }
+    return $response
+        ->withHeader('Content-type', 'application/json')
+        ->withStatus(422);
+});
+
+//Update cart item quantity
+$app->post('/updatecartitemquantity', function (Request $request, Response $response) {
+
+    if (!haveEmptyParameters(array(
+        'id', 'itemTitle', 'itemPrice', 'itemQuantity', 'itemSize', 'itemMilk',
+        'itemSugar', 'itemDecaf', 'itemVanilla', 'itemCaramel', 'itemChocolate', 'itemWhippedCream', 'itemFrappe', 'itemHeated',
+        'itemComment', 'itemType', 'userID'
+    ), $request, $response)) {
+
+        $request_data = $request->getParsedBody();
+
+        $itemID = $request_data['id'];
+        $itemTitle = $request_data['itemTitle'];
+        $itemPrice = $request_data['itemPrice'];
+        $itemQuantity = $request_data['itemQuantity'];
+        $itemSize = $request_data['itemSize'];
+        $itemMilk = $request_data['itemMilk'];
+        $itemSugar = $request_data['itemSugar'];
+        $itemDecaf = $request_data['itemDecaf'];
+        $itemVanilla = $request_data['itemVanilla'];
+        $itemCaramel = $request_data['itemCaramel'];
+        $itemChocolate = $request_data['itemChocolate'];
+        $itemWhippedCream = $request_data['itemWhippedCream'];
+        $itemFrappe = $request_data['itemFrappe'];
+        $itemHeated = $request_data['itemHeated'];
+        $itemComment = $request_data['itemComment'];
+        $itemType = $request_data['itemType'];
+        $userID = $request_data['userID'];
+
+        $db = new DbOperations;
+
+        $result = $db->updateCartItemQuantity(
+            $itemID,
+            $itemTitle,
+            $itemPrice,
+            $itemQuantity,
+            $itemSize,
+            $itemMilk,
+            $itemSugar,
+            $itemDecaf,
+            $itemVanilla,
+            $itemCaramel,
+            $itemChocolate,
+            $itemWhippedCream,
+            $itemFrappe,
+            $itemHeated,
+            $itemComment,
+            $itemType,
+            $userID
+        );
+
+        if ($result == CART_QUANTITY_UPDATED) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Quantity updated';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(201);
+        } else if ($result == CART_QUANTITY_UPDATE_FAILED) {
+            $message = array();
+            $message['error'] = true;
+            $message['message'] = 'Quantity update failed';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(402);
+        } else if ($result == NOT_ENOUGH_STOCK) {
+            $message = array();
+            $message['error'] = false;
+            $message['message'] = 'Not enough stock';
+            $response->write(json_encode($message));
+            return $response
+                ->withHeader('Content-type', 'application/json')
+                ->withStatus(403);
         }
     }
     return $response
